@@ -365,6 +365,19 @@ namespace Nop.Services.Customers
         /// <param name="customerRole">Customer role</param>
         void UpdateCustomerRole(CustomerRole customerRole);
 
+        /// <summary>
+        /// Delete customer roles
+        /// </summary>
+        /// <param name="customerRoles">Customer role</param>
+        void DeleteCustomerRoles(IList<CustomerRole> customerRoles);
+
+        /// <summary>
+        /// Gets a customer roles
+        /// </summary>
+        /// <param name="customerRolesIds">Customer roles identifiers</param>
+        /// <returns>Customer role</returns>
+        List<CustomerRole> GetCustomerRolesByIds(int[] customerRolesIds);
+
         #endregion
 
         #region Customer passwords

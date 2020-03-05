@@ -1027,6 +1027,22 @@ namespace Nop.Services.Customers
         }
 
         /// <summary>
+        /// Delete customer roles
+        /// </summary>
+        /// <param name="customerRoles">Customer role</param>
+        public virtual void DeleteCustomerRoles(IList<CustomerRole> customerRoles)
+        {
+            if (customerRoles == null)
+                throw new ArgumentNullException(nameof(customerRoles));
+
+            foreach (var customerRole in customerRoles)
+            {
+                DeleteCustomerRole(customerRole);
+            }
+        }
+
+
+        /// <summary>
         /// Gets a customer role
         /// </summary>
         /// <param name="customerRoleId">Customer role identifier</param>
@@ -1037,6 +1053,32 @@ namespace Nop.Services.Customers
                 return null;
 
             return _customerRoleRepository.ToCachedGetById(customerRoleId);
+        }
+
+        /// <summary>
+        /// Gets a customer roles
+        /// </summary>
+        /// <param name="customerRolesIds">Customer roles identifiers</param>
+        /// <returns>Customer roles</returns>
+        public virtual List<CustomerRole> GetCustomerRolesByIds(int[] customerRolesIds)
+        {
+            if (customerRolesIds == null || customerRolesIds.Length == 0)
+                return new List<CustomerRole>();
+
+            var query = from c in _customerRoleRepository.Table
+                        where customerRolesIds.Contains(c.Id)
+                        select c;
+            var customerRoles = query.ToList();
+            //sort by passed identifiers
+            var sortedCustomerRoles = new List<CustomerRole>();
+            foreach (var id in customerRolesIds)
+            {
+                var customerRole = customerRoles.Find(x => x.Id == id);
+                if (customerRole != null)
+                    sortedCustomerRoles.Add(customerRole);
+            }
+
+            return sortedCustomerRoles;
         }
 
         /// <summary>
