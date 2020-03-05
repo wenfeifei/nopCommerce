@@ -114,5 +114,18 @@ namespace Nop.Services.Orders
         /// <param name="giftCard">Gift card</param>
         /// <returns>Result</returns>
         bool IsGiftCardValid(GiftCard giftCard);
+
+        /// <summary>
+        /// Gets a gift cards
+        /// </summary>
+        /// <param name="giftCardId">Gift cards identifiers</param>
+        /// <returns>Gift cards entry</returns>
+        List<GiftCard> GetGiftCardsByIds(int[] giftCardIds);
+
+        /// <summary>
+        /// Delete gift cards
+        /// </summary>
+        /// <param name="giftCards">Gift cards</param>
+        void DeleteGiftCards(IList<GiftCard> giftCards);
     }
 }

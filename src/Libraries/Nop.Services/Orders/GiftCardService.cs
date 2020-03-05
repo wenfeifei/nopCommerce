@@ -60,6 +60,21 @@ namespace Nop.Services.Orders
         }
 
         /// <summary>
+        /// Delete gift cards
+        /// </summary>
+        /// <param name="giftCards">Gift cards</param>
+        public virtual void DeleteGiftCards(IList<GiftCard> giftCards)
+        {
+            if (giftCards == null)
+                throw new ArgumentNullException(nameof(giftCards));
+
+            foreach (var giftCard in giftCards)
+            {
+                DeleteGiftCard(giftCard);
+            }
+        }
+
+        /// <summary>
         /// Gets a gift card
         /// </summary>
         /// <param name="giftCardId">Gift card identifier</param>
@@ -70,6 +85,32 @@ namespace Nop.Services.Orders
                 return null;
 
             return _giftCardRepository.ToCachedGetById(giftCardId);
+        }
+
+        /// <summary>
+        /// Gets a gift cards
+        /// </summary>
+        /// <param name="giftCardIds">Gift cards identifiers</param>
+        /// <returns>Gift cards</returns>
+        public virtual List<GiftCard> GetGiftCardsByIds(int[] giftCardIds)
+        {
+            if (giftCardIds == null || giftCardIds.Length == 0)
+                return new List<GiftCard>();
+
+            var query = from c in _giftCardRepository.Table
+                        where giftCardIds.Contains(c.Id)
+                        select c;
+            var giftCards = query.ToList();
+            //sort by passed identifiers
+            var sortedGiftCards = new List<GiftCard>();
+            foreach (var id in giftCardIds)
+            {
+                var giftCard = giftCards.Find(x => x.Id == id);
+                if (giftCard != null)
+                    sortedGiftCards.Add(giftCard);
+            }
+
+            return sortedGiftCards;
         }
 
         /// <summary>
