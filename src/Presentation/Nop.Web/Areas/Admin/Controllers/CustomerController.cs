@@ -1579,7 +1579,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
         #endregion
 
-        #region Export / Import
+        #region Export / Import / Delete
 
         [HttpPost, ActionName("ExportExcel")]
         [FormValueRequired("exportexcel-all")]
@@ -1687,6 +1687,20 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             var xml = _exportManager.ExportCustomersToXml(customers);
             return File(Encoding.UTF8.GetBytes(xml), "application/xml", "customers.xml");
+        }
+
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageOrders))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                _customerService.DeleteCustomers(_customerService.GetCustomersByIds(selectedIds.ToArray()).Where(p => _workContext.CurrentVendor == null).ToList());
+            }
+
+            return Json(new { Result = true });
         }
 
         #endregion

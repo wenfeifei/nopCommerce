@@ -366,6 +366,21 @@ namespace Nop.Services.Customers
         }
 
         /// <summary>
+        /// Delete customers
+        /// </summary>
+        /// <param name="customers">Customers</param>
+        public virtual void DeleteCustomers(IList<Customer> customers)
+        {
+            if (customers == null)
+                throw new ArgumentNullException(nameof(customers));
+
+            foreach (var customer in customers)
+            {
+                DeleteCustomer(customer);
+            }
+        }
+
+        /// <summary>
         /// Gets a customer
         /// </summary>
         /// <param name="customerId">Customer identifier</param>

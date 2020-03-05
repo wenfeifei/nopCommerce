@@ -238,6 +238,12 @@ namespace Nop.Services.Customers
         /// <returns>New coupon codes document</returns>
         void RemoveGiftCardCouponCode(Customer customer, string couponCode);
 
+        /// <summary>
+        /// Delete customers
+        /// </summary>
+        /// <param name="customers">Customers</param>
+        void DeleteCustomers(IList<Customer> customers);
+
         #endregion
 
         #region Customer roles
