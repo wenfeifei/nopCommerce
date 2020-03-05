@@ -39,6 +39,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IStateProvinceService _stateProvinceService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IStoreService _storeService;
+        private readonly IWorkContext _workContext;
 
         #endregion
 
@@ -56,7 +57,8 @@ namespace Nop.Web.Areas.Admin.Controllers
             IPermissionService permissionService,
             IStateProvinceService stateProvinceService,
             IStoreMappingService storeMappingService,
-            IStoreService storeService)
+            IStoreService storeService,
+            IWorkContext workContext)
         {
             _addressService = addressService;
             _countryModelFactory = countryModelFactory;
@@ -71,6 +73,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             _stateProvinceService = stateProvinceService;
             _storeMappingService = storeMappingService;
             _storeService = storeService;
+            _workContext = workContext;
         }
 
         #endregion
@@ -541,7 +544,7 @@ namespace Nop.Web.Areas.Admin.Controllers
 
         #endregion
 
-        #region Export / import
+        #region Export / import / Delete
 
         public virtual IActionResult ExportCsv()
         {
@@ -582,6 +585,20 @@ namespace Nop.Web.Areas.Admin.Controllers
                 _notificationService.ErrorNotification(exc);
                 return RedirectToAction("List");
             }
+        }
+
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageOrders))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                _countryService.DeleteCountries(_countryService.GetCountriesByIds(selectedIds.ToArray()).Where(p => _workContext.CurrentVendor == null).ToList());
+            }
+
+            return Json(new { Result = true });
         }
 
         #endregion

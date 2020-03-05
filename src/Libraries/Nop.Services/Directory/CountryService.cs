@@ -71,6 +71,21 @@ namespace Nop.Services.Directory
         }
 
         /// <summary>
+        /// Delete countries
+        /// </summary>
+        /// <param name="countries">Countries</param>
+        public virtual void DeleteCountries(IList<Country> countries)
+        {
+            if (countries == null)
+                throw new ArgumentNullException(nameof(countries));
+
+            foreach (var country in countries)
+            {
+                DeleteCountry(country);
+            }
+        }
+
+        /// <summary>
         /// Gets all countries
         /// </summary>
         /// <param name="languageId">Language identifier. It's used to sort countries by localized names (if specified); pass 0 to skip it</param>

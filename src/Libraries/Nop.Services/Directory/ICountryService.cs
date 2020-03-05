@@ -85,5 +85,11 @@ namespace Nop.Services.Directory
         /// </summary>
         /// <param name="country">Country</param>
         void UpdateCountry(Country country);
+
+        /// <summary>
+        /// Delete countries
+        /// </summary>
+        /// <param name="countries">Countries</param>
+        void DeleteCountries(IList<Country> countries);
     }
 }
