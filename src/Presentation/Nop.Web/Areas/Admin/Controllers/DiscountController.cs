@@ -244,6 +244,28 @@ namespace Nop.Web.Areas.Admin.Controllers
             return RedirectToAction("List");
         }
 
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var discounts = _discountService.GetDiscountsByIds(selectedIds.ToArray());
+                _discountService.DeleteDiscounts(discounts);
+
+                foreach (var discount in discounts)
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteDiscount",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteDiscount"), discount.Name), discount);
+                }
+            }
+
+            return Json(new { Result = true });
+        }
+
         #endregion
 
         #region Discount requirements

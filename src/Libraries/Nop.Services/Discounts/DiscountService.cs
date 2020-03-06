@@ -153,6 +153,21 @@ namespace Nop.Services.Discounts
         }
 
         /// <summary>
+        /// Delete discount
+        /// </summary>
+        /// <param name="discount">Discount</param>
+        public virtual void DeleteDiscounts(IList<Discount> discounts)
+        {
+            if (discounts == null)
+                throw new ArgumentNullException(nameof(discounts));
+
+            foreach (var discount in discounts)
+            {
+                DeleteDiscount(discount);
+            }
+        }
+
+        /// <summary>
         /// Gets a discount
         /// </summary>
         /// <param name="discountId">Discount identifier</param>
@@ -164,6 +179,24 @@ namespace Nop.Services.Discounts
 
             return _discountRepository.ToCachedGetById(discountId);
         }
+
+        /// <summary>
+        /// Gets discounts
+        /// </summary>
+        /// <param name="discountsIds">Discounts identifiers</param>
+        /// <returns>Product tags</returns>
+        public virtual IList<Discount> GetDiscountsByIds(int[] discountsIds)
+        {
+            if (discountsIds == null || discountsIds.Length == 0)
+                return new List<Discount>();
+
+            var query = from p in _discountRepository.Table
+                        where discountsIds.Contains(p.Id)
+                        select p;
+
+            return query.ToList();
+        }
+
 
         /// <summary>
         /// Gets all discounts

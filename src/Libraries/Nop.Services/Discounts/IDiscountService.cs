@@ -60,6 +60,19 @@ namespace Nop.Services.Discounts
         /// <returns>List of discounts</returns>
         IList<Discount> GetAppliedDiscounts<T>(IDiscountSupported<T> entity) where T : DiscountMapping;
 
+        /// <summary>
+        /// Delete discount
+        /// </summary>
+        /// <param name="discount">Discount</param>
+        void DeleteDiscounts(IList<Discount> discounts);
+
+        /// <summary>
+        /// Gets discounts
+        /// </summary>
+        /// <param name="discountsIds">Discounts identifiers</param>
+        /// <returns>Product tags</returns>
+        IList<Discount> GetDiscountsByIds(int[] discountsIds);
+
         #endregion
 
         #region Discounts (caching)
