@@ -104,6 +104,21 @@ namespace Nop.Services.Vendors
         }
 
         /// <summary>
+        /// Delete vendors
+        /// </summary>
+        /// <param name="vendors">Vendor</param>
+        public virtual void DeleteVendors(IList<Vendor> vendors)
+        {
+            if (vendors == null)
+                throw new ArgumentNullException(nameof(vendors));
+
+            foreach (var vendor in vendors)
+            {
+                DeleteVendor(vendor);
+            }
+        }
+
+        /// <summary>
         /// Gets all vendors
         /// </summary>
         /// <param name="name">Vendor name</param>

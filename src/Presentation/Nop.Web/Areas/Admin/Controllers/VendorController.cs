@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Core.Domain.Common;
 using Nop.Core.Domain.Vendors;
@@ -42,6 +44,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IVendorAttributeService _vendorAttributeService;
         private readonly IVendorModelFactory _vendorModelFactory;
         private readonly IVendorService _vendorService;
+        private readonly IWorkContext _workContext;
 
         #endregion
 
@@ -60,7 +63,8 @@ namespace Nop.Web.Areas.Admin.Controllers
             IVendorAttributeParser vendorAttributeParser,
             IVendorAttributeService vendorAttributeService,
             IVendorModelFactory vendorModelFactory,
-            IVendorService vendorService)
+            IVendorService vendorService,
+            IWorkContext workContext)
         {
             _addressService = addressService;
             _customerActivityService = customerActivityService;
@@ -76,6 +80,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             _vendorAttributeService = vendorAttributeService;
             _vendorModelFactory = vendorModelFactory;
             _vendorService = vendorService;
+            _workContext = workContext;
         }
 
         #endregion
@@ -441,6 +446,20 @@ namespace Nop.Web.Areas.Admin.Controllers
             _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Vendors.Deleted"));
 
             return RedirectToAction("List");
+        }
+
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageVendors))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                _vendorService.DeleteVendors(_vendorService.GetVendorsByIds(selectedIds.ToArray()).Where(p => _workContext.CurrentVendor == null).ToList());
+            }
+
+            return Json(new { Result = true });
         }
 
         #endregion

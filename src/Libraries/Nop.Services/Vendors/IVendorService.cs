@@ -100,5 +100,11 @@ namespace Nop.Services.Vendors
         /// <param name="vendorNote">Vendor note</param>
         /// <returns>Formatted text</returns>
         string FormatVendorNoteText(VendorNote vendorNote);
+
+        /// <summary>
+        /// Delete vendors
+        /// </summary>
+        /// <param name="vendors">Vendor</param>
+        void DeleteVendors(IList<Vendor> vendors);
     }
 }
