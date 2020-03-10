@@ -310,10 +310,10 @@ namespace Nop.Web.Areas.Admin.Controllers
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
                 return AccessDeniedView();
 
-            if (!string.IsNullOrWhiteSpace(model.Email) && _customerService.GetCustomerByEmail(model.Email) != null)
+            if (!string.IsNullOrWhiteSpace(model.Email) && !model.Email.Contains("DELETED") && _customerService.GetCustomerByEmail(model.Email) != null)
                 ModelState.AddModelError(string.Empty, "Email is already registered");
 
-            if (!string.IsNullOrWhiteSpace(model.Username) && _customerSettings.UsernamesEnabled &&
+            if (!string.IsNullOrWhiteSpace(model.Username) && !model.Username.Contains("DELETED") && _customerSettings.UsernamesEnabled &&
                 _customerService.GetCustomerByUsername(model.Username) != null)
             {
                 ModelState.AddModelError(string.Empty, "Username is already registered");
@@ -1168,7 +1168,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 ?? throw new ArgumentException("No customer found with the specified id", nameof(customerId));
 
             //try to get an address with the specified id
-            var address = _customerService.GetCustomerAddress(customer.Id, id);            
+            var address = _customerService.GetCustomerAddress(customer.Id, id);
 
             if (address == null)
                 return Content("No address found with the specified id");
@@ -1692,12 +1692,20 @@ namespace Nop.Web.Areas.Admin.Controllers
         [HttpPost]
         public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
                 return AccessDeniedView();
 
             if (selectedIds != null)
             {
-                _customerService.DeleteCustomers(_customerService.GetCustomersByIds(selectedIds.ToArray()).Where(p => _workContext.CurrentVendor == null).ToList());
+                var customers = _customerService.GetCustomersByIds(selectedIds.ToArray()).Where(p => _workContext.CurrentVendor == null).ToList();
+                _customerService.DeleteCustomers(customers);
+
+                customers.ForEach(customer =>
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteCustomer",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteCustomer"), customer.Id), customer);
+                });
             }
 
             return Json(new { Result = true });

@@ -313,14 +313,14 @@ namespace Nop.Services.Customers
             //filter customers by billing country
             if (countryId > 0)
                 customers = from c in customers
-                    join a in _customerAddressRepository.Table on c.BillingAddressId equals a.Id
-                    where a.CountryId == countryId
-                    select c;
+                            join a in _customerAddressRepository.Table on c.BillingAddressId equals a.Id
+                            where a.CountryId == countryId
+                            select c;
 
             var customersWithCarts = from c in customers
-                join item in items on c.Id equals item.CustomerId
-                orderby c.Id
-                select c;
+                                     join item in items on c.Id equals item.CustomerId
+                                     orderby c.Id
+                                     select c;
 
             return new PagedList<Customer>(customersWithCarts.Distinct(), pageIndex, pageSize);
         }
@@ -351,13 +351,11 @@ namespace Nop.Services.Customers
 
             customer.Deleted = true;
 
-            if (_customerSettings.SuffixDeletedCustomers)
-            {
-                if (!string.IsNullOrEmpty(customer.Email))
-                    customer.Email += "-DELETED";
-                if (!string.IsNullOrEmpty(customer.Username))
-                    customer.Username += "-DELETED";
-            }
+            if (!string.IsNullOrEmpty(customer.Email))
+                customer.Email += "-DELETED";
+
+            if (!string.IsNullOrEmpty(customer.Username))
+                customer.Username += "-DELETED";
 
             UpdateCustomer(customer);
 
@@ -1094,9 +1092,9 @@ namespace Nop.Services.Customers
             var key = NopCustomerServiceCachingDefaults.CustomerRolesBySystemNameCacheKey.FillCacheKey(systemName);
 
             var query = from cr in _customerRoleRepository.Table
-                orderby cr.Id
-                where cr.SystemName == systemName
-                select cr;
+                        orderby cr.Id
+                        where cr.SystemName == systemName
+                        select cr;
             var customerRole = query.ToCachedFirstOrDefault(key);
 
             return customerRole;
@@ -1115,7 +1113,7 @@ namespace Nop.Services.Customers
 
             var query = from cr in _customerRoleRepository.Table
                         join crm in _customerCustomerRoleMappingRepository.Table on cr.Id equals crm.CustomerRoleId
-                        where crm.CustomerId == customer.Id && 
+                        where crm.CustomerId == customer.Id &&
                         (showHidden || cr.Active)
                         select cr.Id;
 
@@ -1137,7 +1135,7 @@ namespace Nop.Services.Customers
 
             var query = from cr in _customerRoleRepository.Table
                         join crm in _customerCustomerRoleMappingRepository.Table on cr.Id equals crm.CustomerRoleId
-                        where crm.CustomerId == customer.Id && 
+                        where crm.CustomerId == customer.Id &&
                         (showHidden || cr.Active)
                         select cr;
 
@@ -1156,9 +1154,9 @@ namespace Nop.Services.Customers
             var key = NopCustomerServiceCachingDefaults.CustomerRolesAllCacheKey.FillCacheKey(showHidden);
 
             var query = from cr in _customerRoleRepository.Table
-                orderby cr.Name
-                where showHidden || cr.Active
-                select cr;
+                        orderby cr.Name
+                        where showHidden || cr.Active
+                        select cr;
 
             var customerRoles = query.ToCachedList(key);
 
@@ -1492,9 +1490,9 @@ namespace Nop.Services.Customers
         public virtual IList<Address> GetAddressesByCustomerId(int customerId)
         {
             var query = from address in _customerAddressRepository.Table
-                join cam in _customerAddressMappingRepository.Table on address.Id equals cam.AddressId
-                where cam.CustomerId == customerId
-                select address;
+                        join cam in _customerAddressMappingRepository.Table on address.Id equals cam.AddressId
+                        where cam.CustomerId == customerId
+                        select address;
 
             var key = NopCustomerServiceCachingDefaults.CustomerAddressesByCustomerIdCacheKey.FillCacheKey(customerId);
 
@@ -1513,9 +1511,9 @@ namespace Nop.Services.Customers
                 return null;
 
             var query = from address in _customerAddressRepository.Table
-                join cam in _customerAddressMappingRepository.Table on address.Id equals cam.AddressId
-                where cam.CustomerId == customerId && address.Id == addressId
-                select address;
+                        join cam in _customerAddressMappingRepository.Table on address.Id equals cam.AddressId
+                        where cam.CustomerId == customerId && address.Id == addressId
+                        select address;
 
             var key = NopCustomerServiceCachingDefaults.CustomerAddressCacheKeyCacheKey.FillCacheKey(customerId, addressId);
 

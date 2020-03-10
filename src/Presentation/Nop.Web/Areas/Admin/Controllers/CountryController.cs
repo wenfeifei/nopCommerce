@@ -39,7 +39,6 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IStateProvinceService _stateProvinceService;
         private readonly IStoreMappingService _storeMappingService;
         private readonly IStoreService _storeService;
-        private readonly IWorkContext _workContext;
 
         #endregion
 
@@ -57,8 +56,7 @@ namespace Nop.Web.Areas.Admin.Controllers
             IPermissionService permissionService,
             IStateProvinceService stateProvinceService,
             IStoreMappingService storeMappingService,
-            IStoreService storeService,
-            IWorkContext workContext)
+            IStoreService storeService)
         {
             _addressService = addressService;
             _countryModelFactory = countryModelFactory;
@@ -73,7 +71,6 @@ namespace Nop.Web.Areas.Admin.Controllers
             _stateProvinceService = stateProvinceService;
             _storeMappingService = storeMappingService;
             _storeService = storeService;
-            _workContext = workContext;
         }
 
         #endregion
@@ -590,12 +587,20 @@ namespace Nop.Web.Areas.Admin.Controllers
         [HttpPost]
         public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCountries))
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
                 return AccessDeniedView();
 
             if (selectedIds != null)
             {
-                _countryService.DeleteCountries(_countryService.GetCountriesByIds(selectedIds.ToArray()).Where(p => _workContext.CurrentVendor == null).ToList());
+                var countries = _countryService.GetCountriesByIds(selectedIds.ToArray());
+                _countryService.DeleteCountries(countries);
+
+                foreach (var country in countries)
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteCountry",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteCountry"), country.Name), country);
+                }
             }
 
             return Json(new { Result = true });

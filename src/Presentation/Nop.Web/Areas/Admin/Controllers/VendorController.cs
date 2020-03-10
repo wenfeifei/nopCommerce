@@ -451,12 +451,20 @@ namespace Nop.Web.Areas.Admin.Controllers
         [HttpPost]
         public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManageVendors))
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
                 return AccessDeniedView();
 
             if (selectedIds != null)
             {
-                _vendorService.DeleteVendors(_vendorService.GetVendorsByIds(selectedIds.ToArray()).Where(p => _workContext.CurrentVendor == null).ToList());
+                var vendors = _vendorService.GetVendorsByIds(selectedIds.ToArray());
+                _vendorService.DeleteVendors(vendors);
+
+                foreach (var vendor in vendors)
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteVendor",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteVendor"), vendor.Name), vendor);
+                }
             }
 
             return Json(new { Result = true });

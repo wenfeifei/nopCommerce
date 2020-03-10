@@ -38,7 +38,6 @@ namespace Nop.Web.Areas.Admin.Controllers
         private readonly IOrderService _orderService;
         private readonly IPermissionService _permissionService;
         private readonly IPriceFormatter _priceFormatter;
-        private readonly IWorkContext _workContext;
         private readonly IWorkflowMessageService _workflowMessageService;
         private readonly LocalizationSettings _localizationSettings;
 
@@ -58,7 +57,6 @@ namespace Nop.Web.Areas.Admin.Controllers
             IOrderService orderService,
             IPermissionService permissionService,
             IPriceFormatter priceFormatter,
-            IWorkContext workContext,
             IWorkflowMessageService workflowMessageService,
             LocalizationSettings localizationSettings)
         {
@@ -74,7 +72,6 @@ namespace Nop.Web.Areas.Admin.Controllers
             _orderService = orderService;
             _permissionService = permissionService;
             _priceFormatter = priceFormatter;
-            _workContext = workContext;
             _workflowMessageService = workflowMessageService;
             _localizationSettings = localizationSettings;
         }
@@ -297,12 +294,20 @@ namespace Nop.Web.Areas.Admin.Controllers
         [HttpPost]
         public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManageOrders))
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
                 return AccessDeniedView();
 
             if (selectedIds != null)
             {
-                _giftCardService.DeleteGiftCards(_giftCardService.GetGiftCardsByIds(selectedIds.ToArray()).Where(p => _workContext.CurrentVendor == null).ToList());
+                var giftCards = _giftCardService.GetGiftCardsByIds(selectedIds.ToArray());
+                _giftCardService.DeleteGiftCards(giftCards);
+
+                giftCards.ForEach( giftCard =>
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteGiftCard",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteGiftCard"), giftCard.GiftCardCouponCode), giftCard);
+                });
             }
 
             return Json(new { Result = true });

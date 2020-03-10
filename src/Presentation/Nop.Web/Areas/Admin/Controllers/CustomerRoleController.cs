@@ -269,12 +269,20 @@ namespace Nop.Web.Areas.Admin.Controllers
         [HttpPost]
         public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCustomers))
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
                 return AccessDeniedView();
 
             if (selectedIds != null)
             {
-                _customerService.DeleteCustomerRoles(_customerService.GetCustomerRolesByIds(selectedIds.ToArray()).Where(p => _workContext.CurrentVendor == null).ToList());
+                var customerRoles = _customerService.GetCustomerRolesByIds(selectedIds.ToArray());
+                _customerService.DeleteCustomerRoles(customerRoles);
+
+                foreach (var customerRole in customerRoles)
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteCustomerRole",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteCustomerRole"), customerRole.Name), customerRole);
+                }
             }
 
             return Json(new { Result = true });
