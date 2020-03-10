@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Nop.Core;
 using Nop.Core.Domain.Affiliates;
@@ -71,6 +72,23 @@ namespace Nop.Services.Affiliates
         }
 
         /// <summary>
+        /// Gets affiliates
+        /// </summary>
+        /// <param name="affiliatesIds">Affiliates identifiers</param>
+        /// <returns>Affiliates</returns>
+        public virtual IList<Affiliate> GetAffiliatesByIds(int[] affiliatesIds)
+        {
+            if (affiliatesIds == null || affiliatesIds.Length == 0)
+                return new List<Affiliate>();
+
+            var query = from p in _affiliateRepository.Table
+                        where affiliatesIds.Contains(p.Id)
+                        select p;
+
+            return query.ToList();
+        }
+
+        /// <summary>
         /// Gets an affiliate by friendly URL name
         /// </summary>
         /// <param name="friendlyUrlName">Friendly URL name</param>
@@ -102,6 +120,21 @@ namespace Nop.Services.Affiliates
 
             //event notification
             _eventPublisher.EntityDeleted(affiliate);
+        }
+
+        /// <summary>
+        /// Delete affiliates
+        /// </summary>
+        /// <param name="affiliates">Affiliates</param>
+        public virtual void DeleteAffiliates(IList<Affiliate> affiliates)
+        {
+            if (affiliates == null)
+                throw new ArgumentNullException(nameof(affiliates));
+
+            foreach (var affiliate in affiliates)
+            {
+                DeleteAffiliate(affiliate);
+            }
         }
 
         /// <summary>

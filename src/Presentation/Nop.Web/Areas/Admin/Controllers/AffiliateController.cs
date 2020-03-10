@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Affiliates;
 using Nop.Core.Domain.Common;
@@ -259,6 +261,28 @@ namespace Nop.Web.Areas.Admin.Controllers
             var model = _affiliateModelFactory.PrepareAffiliatedCustomerListModel(searchModel, affiliate);
 
             return Json(model);
+        }
+
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var affiliates = _affiliateService.GetAffiliatesByIds(selectedIds.ToArray());
+                _affiliateService.DeleteAffiliates(affiliates);
+
+                foreach (var affiliate in affiliates)
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteAffiliate",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteAffiliate"), affiliate.Id), affiliate);
+                }
+            }
+
+            return Json(new { Result = true });
         }
 
         #endregion

@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using Nop.Core;
 using Nop.Core.Domain.Affiliates;
 
@@ -82,5 +83,18 @@ namespace Nop.Services.Affiliates
         /// <param name="friendlyUrlName">Friendly URL name</param>
         /// <returns>Valid friendly name</returns>
         string ValidateFriendlyUrlName(Affiliate affiliate, string friendlyUrlName);
+
+        /// <summary>
+        /// Delete affiliates
+        /// </summary>
+        /// <param name="affiliates">Affiliates</param>
+        void DeleteAffiliates(IList<Affiliate> affiliates);
+
+        /// <summary>
+        /// Gets affiliates
+        /// </summary>
+        /// <param name="affiliatesIds">Affiliates identifiers</param>
+        /// <returns>Affiliates</returns>
+         IList<Affiliate> GetAffiliatesByIds(int[] affiliatesIds);
     }
 }
