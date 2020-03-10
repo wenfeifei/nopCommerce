@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Nop.Core;
 using Nop.Core.Domain.Messages;
 
@@ -68,5 +69,18 @@ namespace Nop.Services.Messages
             DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
             int storeId = 0, bool? isActive = null, int customerRoleId = 0,
             int pageIndex = 0, int pageSize = int.MaxValue);
+
+        /// <summary>
+        /// Delete news letter subscriptions
+        /// </summary>
+        /// <param name="newsLetterSubscriptions">NewsLetter subscriptions</param>
+        void DeleteNewsLetterSubscriptions(IList<NewsLetterSubscription> newsLetterSubscriptions);
+
+        /// <summary>
+        /// Gets newsLetter subscriptions
+        /// </summary>
+        /// <param name="newsLetterSubscriptionsIds">NewsLetter subscriptions identifiers</param>
+        /// <returns>NewsLetter subscriptions</returns>
+        IList<NewsLetterSubscription> GetNewsLetterSubscriptionsByIds(int[] newsLetterSubscriptionsIds);
     }
 }

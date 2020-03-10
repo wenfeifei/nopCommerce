@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Nop.Core;
 using Nop.Core.Domain.Customers;
@@ -52,7 +53,7 @@ namespace Nop.Services.Messages
         /// <param name="publishSubscriptionEvents">if set to <c>true</c> [publish subscription events].</param>
         private void PublishSubscriptionEvent(NewsLetterSubscription subscription, bool isSubscribe, bool publishSubscriptionEvents)
         {
-            if (!publishSubscriptionEvents) 
+            if (!publishSubscriptionEvents)
                 return;
 
             if (isSubscribe)
@@ -150,7 +151,8 @@ namespace Nop.Services.Messages
         /// <param name="publishSubscriptionEvents">if set to <c>true</c> [publish subscription events].</param>
         public virtual void DeleteNewsLetterSubscription(NewsLetterSubscription newsLetterSubscription, bool publishSubscriptionEvents = true)
         {
-            if (newsLetterSubscription == null) throw new ArgumentNullException(nameof(newsLetterSubscription));
+            if (newsLetterSubscription == null)
+                throw new ArgumentNullException(nameof(newsLetterSubscription));
 
             _subscriptionRepository.Delete(newsLetterSubscription);
 
@@ -162,15 +164,48 @@ namespace Nop.Services.Messages
         }
 
         /// <summary>
+        /// Delete news letter subscriptions
+        /// </summary>
+        /// <param name="newsLetterSubscriptions">NewsLetter subscriptions</param>
+        public virtual void DeleteNewsLetterSubscriptions(IList<NewsLetterSubscription> newsLetterSubscriptions)
+        {
+            if (newsLetterSubscriptions == null)
+                throw new ArgumentNullException(nameof(newsLetterSubscriptions));
+
+            foreach (var newsLetterSubscription in newsLetterSubscriptions)
+            {
+                DeleteNewsLetterSubscription(newsLetterSubscription);
+            }
+        }
+
+        /// <summary>
         /// Gets a newsletter subscription by newsletter subscription identifier
         /// </summary>
         /// <param name="newsLetterSubscriptionId">The newsletter subscription identifier</param>
         /// <returns>NewsLetter subscription</returns>
         public virtual NewsLetterSubscription GetNewsLetterSubscriptionById(int newsLetterSubscriptionId)
         {
-            if (newsLetterSubscriptionId == 0) return null;
+            if (newsLetterSubscriptionId == 0)
+                return null;
 
             return _subscriptionRepository.ToCachedGetById(newsLetterSubscriptionId);
+        }
+
+        /// <summary>
+        /// Gets newsLetter subscriptions
+        /// </summary>
+        /// <param name="newsLetterSubscriptionsIds">NewsLetter subscriptions identifiers</param>
+        /// <returns>NewsLetter subscriptions</returns>
+        public virtual IList<NewsLetterSubscription> GetNewsLetterSubscriptionsByIds(int[] newsLetterSubscriptionsIds)
+        {
+            if (newsLetterSubscriptionsIds == null || newsLetterSubscriptionsIds.Length == 0)
+                return new List<NewsLetterSubscription>();
+
+            var query = from p in _subscriptionRepository.Table
+                        where newsLetterSubscriptionsIds.Contains(p.Id)
+                        select p;
+
+            return query.ToList();
         }
 
         /// <summary>
@@ -180,7 +215,8 @@ namespace Nop.Services.Messages
         /// <returns>NewsLetter subscription</returns>
         public virtual NewsLetterSubscription GetNewsLetterSubscriptionByGuid(Guid newsLetterSubscriptionGuid)
         {
-            if (newsLetterSubscriptionGuid == Guid.Empty) return null;
+            if (newsLetterSubscriptionGuid == Guid.Empty)
+                return null;
 
             var newsLetterSubscriptions = from nls in _subscriptionRepository.Table
                                           where nls.NewsLetterSubscriptionGuid == newsLetterSubscriptionGuid

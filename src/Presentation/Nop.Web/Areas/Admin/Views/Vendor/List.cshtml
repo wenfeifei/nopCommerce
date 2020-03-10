@@ -93,6 +93,13 @@
                         },
                         ColumnCollection = new List<ColumnProperty>
                         {
+                            new ColumnProperty(nameof(VendorModel.Id))
+                            {
+                                IsMasterCheckBox = true,
+                                Render = new RenderCheckBox("checkbox_vendors"),
+                                ClassName =  NopColumnClassDefaults.CenterAll,
+                                Width = "50",
+                            },
                             new ColumnProperty(nameof(VendorModel.Name))
                             {
                                 Title = T("Admin.Vendors.Fields.Name").Text,
@@ -119,6 +126,30 @@
                             }
                         }
                     })
+                    <script>
+                        $('#delete-selected-action-confirmation-submit-button').bind('click', function () {
+                            var postData = {
+                                selectedIds: selectedIds
+                            };
+                            addAntiForgeryToken(postData);
+                            $.ajax({
+                                cache: false,
+                                type: "POST",
+                                url: "@(Url.Action("DeleteSelected", "Vendor"))",
+                                data: postData,
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    $('#deleteSelectedFailed-info').text(errorThrown);
+                                    $('#deleteSelectedFailed').click();
+                                        },
+                                complete: function (jqXHR, textStatus) {
+                                    updateTable('#vendors-grid');
+                                }
+                            });
+                            $('#delete-selected-action-confirmation').modal('toggle');
+                            return false;
+                        });
+                    </script>
+                    <nop-alert asp-alert-id="deleteSelectedFailed" />
                 </div>
             </div>
         </div>

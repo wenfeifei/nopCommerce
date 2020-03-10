@@ -23,7 +23,7 @@
             @T("Admin.Promotions.NewsLetterSubscriptions")
         </h1>
         <div class="pull-right">
-            <button  asp-action="ExportCSV" type="submit" name="exportcsv" class="btn bg-green">
+            <button asp-action="ExportCSV" type="submit" name="exportcsv" class="btn bg-green">
                 <i class="fa fa-download"></i>
                 @T("Admin.Common.ExportToCsv")
             </button>
@@ -31,6 +31,11 @@
                 <i class="fa fa-upload"></i>
                 @T("Admin.Common.ImportFromCsv")
             </button>
+            <button type="button" id="delete-selected" class="btn bg-red">
+                <i class="fa fa-trash-o"></i>
+                @T("Admin.Common.Delete.Selected")
+            </button>
+            <nop-action-confirmation asp-button-id="delete-selected" />
             @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.NewsLetterSubscriptionListButtons })
         </div>
     </div>
@@ -134,50 +139,81 @@
                                 new FilterParameter(nameof(Model.CustomerRoleId))
                             },
                             ColumnCollection = new List<ColumnProperty>
+                            {
+                                new ColumnProperty(nameof(NewsletterSubscriptionModel.Id))
                                 {
-                                    new ColumnProperty(nameof(NewsletterSubscriptionModel.Email))
-                                    {
-                                        Title = T("Admin.Promotions.NewsLetterSubscriptions.Fields.Email").Text,
-                                        Width = "300",
-                                        Editable = true,
-                                        EditType = EditType.String
-                                    },
-                                    new ColumnProperty(nameof(NewsletterSubscriptionModel.Active))
-                                    {
-                                        Title = T("Admin.Promotions.NewsLetterSubscriptions.Fields.Active").Text,
-                                        Width = "100",
-                                        ClassName = NopColumnClassDefaults.CenterAll,
-                                        Render = new RenderBoolean(),
-                                        Editable = true,
-                                        EditType = EditType.Checkbox
-                                    },
-                                    new ColumnProperty(nameof(NewsletterSubscriptionModel.StoreName))
-                                    {
-                                        Title = T("Admin.Promotions.NewsLetterSubscriptions.Fields.Store").Text,
-                                        Width = "150",
-                                        Visible = storeService.GetAllStores().Count > 1
-                                    },
-                                    new ColumnProperty(nameof(NewsletterSubscriptionModel.CreatedOn))
-                                    {
-                                        Title = T("Admin.Promotions.NewsLetterSubscriptions.Fields.CreatedOn").Text,
-                                        Width = "200"
-                                    },
-                                    new ColumnProperty(nameof(NewsletterSubscriptionModel.Id))
-                                    {
-                                        Title = T("Admin.Common.Edit").Text,
-                                        Width = "200",
-                                        ClassName =  NopColumnClassDefaults.Button,
-                                        Render = new RenderButtonsInlineEdit()
-                                    },
-                                    new ColumnProperty(nameof(NewsletterSubscriptionModel.Id))
-                                    {
-                                        Title = T("Admin.Common.Delete").Text,
-                                        Width = "100",
-                                        Render = new RenderButtonRemove(T("Admin.Common.Delete").Text),
-                                        ClassName = NopColumnClassDefaults.Button
-                                    }
+                                    IsMasterCheckBox = true,
+                                    Render = new RenderCheckBox("checkbox_newslettersubscription"),
+                                    ClassName =  NopColumnClassDefaults.CenterAll,
+                                    Width = "50",
+                                },
+                                new ColumnProperty(nameof(NewsletterSubscriptionModel.Email))
+                                {
+                                    Title = T("Admin.Promotions.NewsLetterSubscriptions.Fields.Email").Text,
+                                    Width = "300",
+                                    Editable = true,
+                                    EditType = EditType.String
+                                },
+                                new ColumnProperty(nameof(NewsletterSubscriptionModel.Active))
+                                {
+                                    Title = T("Admin.Promotions.NewsLetterSubscriptions.Fields.Active").Text,
+                                    Width = "100",
+                                    ClassName = NopColumnClassDefaults.CenterAll,
+                                    Render = new RenderBoolean(),
+                                    Editable = true,
+                                    EditType = EditType.Checkbox
+                                },
+                                new ColumnProperty(nameof(NewsletterSubscriptionModel.StoreName))
+                                {
+                                    Title = T("Admin.Promotions.NewsLetterSubscriptions.Fields.Store").Text,
+                                    Width = "150",
+                                    Visible = storeService.GetAllStores().Count > 1
+                                },
+                                new ColumnProperty(nameof(NewsletterSubscriptionModel.CreatedOn))
+                                {
+                                    Title = T("Admin.Promotions.NewsLetterSubscriptions.Fields.CreatedOn").Text,
+                                    Width = "200"
+                                },
+                                new ColumnProperty(nameof(NewsletterSubscriptionModel.Id))
+                                {
+                                    Title = T("Admin.Common.Edit").Text,
+                                    Width = "200",
+                                    ClassName =  NopColumnClassDefaults.Button,
+                                    Render = new RenderButtonsInlineEdit()
+                                },
+                                new ColumnProperty(nameof(NewsletterSubscriptionModel.Id))
+                                {
+                                    Title = T("Admin.Common.Delete").Text,
+                                    Width = "100",
+                                    Render = new RenderButtonRemove(T("Admin.Common.Delete").Text),
+                                    ClassName = NopColumnClassDefaults.Button
                                 }
+                            }
                         })
+                        <script>
+                            $('#delete-selected-action-confirmation-submit-button').bind('click', function () {
+                                var postData = {
+                                    selectedIds: selectedIds
+                                };
+                                addAntiForgeryToken(postData);
+                                $.ajax({
+                                    cache: false,
+                                    type: "POST",
+                                    url: "@(Url.Action("DeleteSelected", "NewsLetterSubscription"))",
+                                    data: postData,
+                                    error: function (jqXHR, textStatus, errorThrown) {
+                                        $('#deleteSelectedFailed-info').text(errorThrown);
+                                        $('#deleteSelectedFailed').click();
+                                            },
+                                    complete: function (jqXHR, textStatus) {
+                                        updateTable('#newsletter-subscriptions-grid');
+                                    }
+                                });
+                                $('#delete-selected-action-confirmation').modal('toggle');
+                                return false;
+                            });
+                        </script>
+                        <nop-alert asp-alert-id="deleteSelectedFailed" />
                     </div>
                 </div>
             </div>

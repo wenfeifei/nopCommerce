@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -170,6 +172,21 @@ namespace Nop.Web.Areas.Admin.Controllers
                 _notificationService.ErrorNotification(exc);
                 return RedirectToAction("List");
             }
+        }
+
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var newsLetterSubscriptions = _newsLetterSubscriptionService.GetNewsLetterSubscriptionsByIds(selectedIds.ToArray());
+                _newsLetterSubscriptionService.DeleteNewsLetterSubscriptions(newsLetterSubscriptions);
+            }
+
+            return Json(new { Result = true });
         }
 
         #endregion

@@ -184,7 +184,7 @@ namespace Nop.Services.Discounts
         /// Gets discounts
         /// </summary>
         /// <param name="discountsIds">Discounts identifiers</param>
-        /// <returns>Product tags</returns>
+        /// <returns>Discounts</returns>
         public virtual IList<Discount> GetDiscountsByIds(int[] discountsIds)
         {
             if (discountsIds == null || discountsIds.Length == 0)
