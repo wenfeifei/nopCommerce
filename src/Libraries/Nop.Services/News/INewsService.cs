@@ -65,6 +65,12 @@ namespace Nop.Services.News
         /// <returns>Result</returns>
         bool IsNewsAvailable(NewsItem newsItem, DateTime? dateTime = null);
 
+        /// <summary>
+        /// Deletes a news
+        /// </summary>
+        /// <param name="newsItems">News items</param>
+        void DeleteNewsItems(IList<NewsItem> newsItems);
+
         #endregion
 
         #region News comments

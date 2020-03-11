@@ -64,6 +64,21 @@ namespace Nop.Services.News
         }
 
         /// <summary>
+        /// Deletes a news
+        /// </summary>
+        /// <param name="newsItems">News items</param>
+        public virtual void DeleteNewsItems(IList<NewsItem> newsItems)
+        {
+            if (newsItems == null)
+                throw new ArgumentNullException(nameof(newsItems));
+
+            foreach (var newsItem in newsItems)
+            {
+                DeleteNews(newsItem);
+            }
+        }
+
+        /// <summary>
         /// Gets a news
         /// </summary>
         /// <param name="newsId">The news identifier</param>

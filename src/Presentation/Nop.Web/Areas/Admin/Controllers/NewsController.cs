@@ -252,6 +252,28 @@ namespace Nop.Web.Areas.Admin.Controllers
             return RedirectToAction("NewsItems");
         }
 
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var newsitems = _newsService.GetNewsByIds(selectedIds.ToArray());
+                _newsService.DeleteNewsItems(newsitems);
+
+                foreach (var newsitem in newsitems)
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteNews",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteNews"), newsitem.Id), newsitem);
+                }
+            }
+
+            return Json(new { Result = true });
+        }
+
         #endregion
 
         #region Comments
