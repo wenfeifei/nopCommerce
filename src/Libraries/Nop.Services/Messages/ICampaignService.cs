@@ -57,5 +57,18 @@ namespace Nop.Services.Messages
         /// <param name="emailAccount">Email account</param>
         /// <param name="email">Email</param>
         void SendCampaign(Campaign campaign, EmailAccount emailAccount, string email);
+
+        /// <summary>
+        /// Delete campaigns
+        /// </summary>
+        /// <param name="campaigns">Campaigns</param>
+        void DeleteCampaigns(IList<Campaign> campaigns);
+
+        /// <summary>
+        /// Gets campaigns
+        /// </summary>
+        /// <param name="campaignIds">Campaigns identifiers</param>
+        /// <returns>Campaigns</returns>
+        IList<Campaign> GetCampaignsByIds(int[] campaignIds);
     }
 }

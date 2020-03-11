@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Messages;
@@ -321,6 +322,28 @@ namespace Nop.Web.Areas.Admin.Controllers
             _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Promotions.Campaigns.Deleted"));
 
             return RedirectToAction("List");
+        }
+
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var campaigns = _campaignService.GetCampaignsByIds(selectedIds.ToArray());
+                _campaignService.DeleteCampaigns(campaigns);
+
+                foreach (var campaign in campaigns)
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteCampaign",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteCampaign"), campaign.Id), campaign);
+                }
+            }
+
+            return Json(new { Result = true });
         }
 
         #endregion

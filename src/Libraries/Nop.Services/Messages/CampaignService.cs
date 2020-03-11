@@ -99,6 +99,21 @@ namespace Nop.Services.Messages
         }
 
         /// <summary>
+        /// Delete campaigns
+        /// </summary>
+        /// <param name="campaigns">Campaigns</param>
+        public virtual void DeleteCampaigns(IList<Campaign> campaigns)
+        {
+            if (campaigns == null)
+                throw new ArgumentNullException(nameof(campaigns));
+
+            foreach (var campaign in campaigns)
+            {
+                DeleteCampaign(campaign);
+            }
+        }
+
+        /// <summary>
         /// Gets a campaign by identifier
         /// </summary>
         /// <param name="campaignId">Campaign identifier</param>
@@ -109,6 +124,23 @@ namespace Nop.Services.Messages
                 return null;
 
             return _campaignRepository.ToCachedGetById(campaignId);
+        }
+
+        /// <summary>
+        /// Gets campaigns
+        /// </summary>
+        /// <param name="campaignIds">Campaigns identifiers</param>
+        /// <returns>Campaigns</returns>
+        public virtual IList<Campaign> GetCampaignsByIds(int[] campaignIds)
+        {
+            if (campaignIds == null || campaignIds.Length == 0)
+                return new List<Campaign>();
+
+            var query = from c in _campaignRepository.Table
+                        where campaignIds.Contains(c.Id)
+                        select c;
+
+            return query.ToList();
         }
 
         /// <summary>
