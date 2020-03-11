@@ -82,6 +82,21 @@ namespace Nop.Services.Topics
         }
 
         /// <summary>
+        /// Deletes a topics
+        /// </summary>
+        /// <param name="topics">Topics</param>
+        public virtual void DeleteTopics(IList<Topic> topics)
+        {
+            if (topics == null)
+                throw new ArgumentNullException(nameof(topics));
+
+            foreach (var topic in topics)
+            {
+                DeleteTopic(topic);
+            }
+        }
+
+        /// <summary>
         /// Gets a topic
         /// </summary>
         /// <param name="topicId">The topic identifier</param>
@@ -92,6 +107,23 @@ namespace Nop.Services.Topics
                 return null;
 
             return _topicRepository.ToCachedGetById(topicId);
+        }
+
+        /// <summary>
+        /// Gets topics
+        /// </summary>
+        /// <param name="topicsIds">Topics identifiers</param>
+        /// <returns>Topics</returns>
+        public virtual IList<Topic> GetTopicsByIds(int[] topicsIds)
+        {
+            if (topicsIds == null || topicsIds.Length == 0)
+                return new List<Topic>();
+
+            var query = from t in _topicRepository.Table
+                        where topicsIds.Contains(t.Id)
+                        select t;
+
+            return query.ToList();
         }
 
         /// <summary>

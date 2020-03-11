@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Topics;
 using Nop.Services.Customers;
@@ -331,6 +332,28 @@ namespace Nop.Web.Areas.Admin.Controllers
                 string.Format(_localizationService.GetResource("ActivityLog.DeleteTopic"), topic.Title ?? topic.SystemName), topic);
 
             return RedirectToAction("List");
+        }
+
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var topics = _topicService.GetTopicsByIds(selectedIds.ToArray());
+                _topicService.DeleteTopics(topics);
+
+                foreach (var topic in topics)
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteTopic",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteTopic"), topic.Title ?? topic.SystemName), topic);
+                }
+            }
+
+            return Json(new { Result = true });
         }
 
         #endregion

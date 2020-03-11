@@ -51,5 +51,18 @@ namespace Nop.Services.Topics
         /// </summary>
         /// <param name="topic">Topic</param>
         void UpdateTopic(Topic topic);
+
+        /// <summary>
+        /// Deletes a topics
+        /// </summary>
+        /// <param name="topics">Topics</param>
+        void DeleteTopics(IList<Topic> topics);
+
+        /// <summary>
+        /// Gets topics
+        /// </summary>
+        /// <param name="topicsIds">Topics identifiers</param>
+        /// <returns>Topics</returns>
+        IList<Topic> GetTopicsByIds(int[] topicsIds);
     }
 }
