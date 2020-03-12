@@ -100,6 +100,19 @@ namespace Nop.Services.Blogs
         /// <returns>Result</returns>
         bool BlogPostIsAvailable(BlogPost blogPost, DateTime? dateTime = null);
 
+        /// <summary>
+        /// Delete blog posts
+        /// </summary>
+        /// <param name="blogPosts">Blog posts</param>
+        void DeleteBlogPosts(IList<BlogPost> blogPosts);
+
+        /// <summary>
+        /// Get blog posts
+        /// </summary>
+        /// <param name="blogPostsIds">Blog posts identifiers</param>
+        /// <returns>Blog posts</returns>
+        IList<BlogPost> GetBlogPostsByIds(int[] blogPostsIds);
+
         #endregion
 
         #region Blog comments

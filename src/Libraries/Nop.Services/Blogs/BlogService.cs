@@ -68,6 +68,21 @@ namespace Nop.Services.Blogs
         }
 
         /// <summary>
+        /// Delete blog posts
+        /// </summary>
+        /// <param name="blogPosts">Blog posts</param>
+        public virtual void DeleteBlogPosts(IList<BlogPost> blogPosts)
+        {
+            if (blogPosts == null)
+                throw new ArgumentNullException(nameof(blogPosts));
+
+            foreach (var blogPost in blogPosts)
+            {
+                DeleteBlogPost(blogPost);
+            }
+        }
+
+        /// <summary>
         /// Gets a blog post
         /// </summary>
         /// <param name="blogPostId">Blog post identifier</param>
@@ -78,6 +93,23 @@ namespace Nop.Services.Blogs
                 return null;
 
             return _blogPostRepository.ToCachedGetById(blogPostId);
+        }
+
+        /// <summary>
+        /// Get blog posts
+        /// </summary>
+        /// <param name="blogPostsIds">Blog posts identifiers</param>
+        /// <returns>Blog posts</returns>
+        public virtual IList<BlogPost> GetBlogPostsByIds(int[] blogPostsIds)
+        {
+            if (blogPostsIds == null || blogPostsIds.Length == 0)
+                return new List<BlogPost>();
+
+            var query = from b in _blogPostRepository.Table
+                        where blogPostsIds.Contains(b.Id)
+                        select b;
+
+            return query.ToList();
         }
 
         /// <summary>
