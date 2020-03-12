@@ -1,4 +1,5 @@
-﻿using Nop.Core;
+﻿using System.Collections.Generic;
+using Nop.Core;
 using Nop.Core.Domain.Polls;
 
 namespace Nop.Services.Polls
@@ -104,5 +105,18 @@ namespace Nop.Services.Polls
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
         IPagedList<PollVotingRecord> GetPollVotingRecordsByPollAnswer(int pollAnswerId, int pageIndex = 0, int pageSize = int.MaxValue);
+
+        /// <summary>
+        /// Delete polls
+        /// </summary>
+        /// <param name="poll">The poll</param>
+        void DeletePolls(IList<Poll> polls);
+
+        /// <summary>
+        /// Get polls
+        /// </summary>
+        /// <param name="pollsIds">Polls identifiers</param>
+        /// <returns>Polls</returns>
+        IList<Poll> GetPollsByIds(int[] pollsIds);
     }
 }

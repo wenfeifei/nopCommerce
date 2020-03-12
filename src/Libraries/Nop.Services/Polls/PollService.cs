@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Nop.Core;
 using Nop.Core.Domain.Catalog;
@@ -139,6 +140,38 @@ namespace Nop.Services.Polls
 
             //event notification
             _eventPublisher.EntityDeleted(poll);
+        }
+
+        /// <summary>
+        /// Delete polls
+        /// </summary>
+        /// <param name="poll">The poll</param>
+        public virtual void DeletePolls(IList<Poll> polls)
+        {
+            if (polls == null)
+                throw new ArgumentNullException(nameof(polls));
+
+            foreach (var poll in polls)
+            {
+                DeletePoll(poll);
+            }
+        }
+
+        /// <summary>
+        /// Get polls
+        /// </summary>
+        /// <param name="pollsIds">Polls identifiers</param>
+        /// <returns>Polls</returns>
+        public virtual IList<Poll> GetPollsByIds(int[] pollsIds)
+        {
+            if (pollsIds == null || pollsIds.Length == 0)
+                return new List<Poll>();
+
+            var query = from p in _pollRepository.Table
+                        where pollsIds.Contains(p.Id)
+                        select p;
+
+            return query.ToList();
         }
 
         /// <summary>
