@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Stores;
@@ -243,6 +244,28 @@ namespace Nop.Web.Areas.Admin.Controllers
                 _notificationService.ErrorNotification(exc);
                 return RedirectToAction("Edit", new { id = store.Id });
             }
+        }
+
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var stores = _storeService.GetStoresByIds(selectedIds.ToArray());
+                _storeService.DeleteStores(stores);
+
+                foreach (var store in stores)
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteStore",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteStore"), store.Id), store);
+                }
+            }
+
+            return Json(new { Result = true });
         }
 
         #endregion

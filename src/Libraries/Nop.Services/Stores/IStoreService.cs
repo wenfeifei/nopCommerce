@@ -60,5 +60,18 @@ namespace Nop.Services.Stores
         /// <param name="storeIdsNames">The names and/or IDs of the store to check</param>
         /// <returns>List of names and/or IDs not existing stores</returns>
         string[] GetNotExistingStores(string[] storeIdsNames);
+
+        /// <summary>
+        /// Delete stores
+        /// </summary>
+        /// <param name="stores">Stores</param>
+        void DeleteStores(IList<Store> stores);
+
+        /// <summary>
+        /// Get stores
+        /// </summary>
+        /// <param name="storesIds">Stores identifiers</param>
+        /// <returns>Stores</returns>
+        IList<Store> GetStoresByIds(int[] storesIds);
     }
 }

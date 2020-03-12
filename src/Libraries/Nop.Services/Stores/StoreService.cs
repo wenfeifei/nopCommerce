@@ -54,6 +54,21 @@ namespace Nop.Services.Stores
         }
 
         /// <summary>
+        /// Delete stores
+        /// </summary>
+        /// <param name="stores">Stores</param>
+        public virtual void DeleteStores(IList<Store> stores)
+        {
+            if (stores == null)
+                throw new ArgumentNullException(nameof(stores));
+
+            foreach (var store in stores)
+            {
+                DeleteStore(store);
+            }
+        }
+
+        /// <summary>
         /// Gets all stores
         /// </summary>
         /// <returns>Stores</returns>
@@ -64,6 +79,23 @@ namespace Nop.Services.Stores
             var result = query.ToCachedList(NopStoreCachingDefaults.StoresAllCacheKey);
 
             return result;
+        }
+
+        /// <summary>
+        /// Get stores
+        /// </summary>
+        /// <param name="storesIds">Stores identifiers</param>
+        /// <returns>Stores</returns>
+        public virtual IList<Store> GetStoresByIds(int[] storesIds)
+        {
+            if (storesIds == null || storesIds.Length == 0)
+                return new List<Store>();
+
+            var query = from s in _storeRepository.Table
+                        where storesIds.Contains(s.Id)
+                        select s;
+
+            return query.ToList();
         }
 
         /// <summary>
