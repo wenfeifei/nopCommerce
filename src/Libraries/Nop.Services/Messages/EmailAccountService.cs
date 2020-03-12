@@ -120,6 +120,21 @@ namespace Nop.Services.Messages
         }
 
         /// <summary>
+        /// Delete email accounts
+        /// </summary>
+        /// <param name="emailAccounts">Email accounts</param>
+        public virtual void DeleteEmailAccounts(IList<EmailAccount> emailAccounts)
+        {
+            if (emailAccounts == null)
+                throw new ArgumentNullException(nameof(emailAccounts));
+
+            foreach (var emailAccount in emailAccounts)
+            {
+                DeleteEmailAccount(emailAccount);
+            }
+        }
+
+        /// <summary>
         /// Gets an email account by identifier
         /// </summary>
         /// <param name="emailAccountId">The email account identifier</param>
@@ -130,6 +145,23 @@ namespace Nop.Services.Messages
                 return null;
 
             return _emailAccountRepository.ToCachedGetById(emailAccountId);
+        }
+
+        /// <summary>
+        /// Get email accounts
+        /// </summary>
+        /// <param name="emailAccountIds">Email accounts identifiers</param>
+        /// <returns>Email accounts</returns>
+        public virtual IList<EmailAccount> GetEmailAccountsByIds(int[] emailAccountIds)
+        {
+            if (emailAccountIds == null || emailAccountIds.Length == 0)
+                return new List<EmailAccount>();
+
+            var query = from e in _emailAccountRepository.Table
+                        where emailAccountIds.Contains(e.Id)
+                        select e;
+
+            return query.ToList();
         }
 
         /// <summary>

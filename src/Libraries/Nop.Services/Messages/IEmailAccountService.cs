@@ -38,5 +38,18 @@ namespace Nop.Services.Messages
         /// </summary>
         /// <returns>Email accounts list</returns>
         IList<EmailAccount> GetAllEmailAccounts();
+
+        /// <summary>
+        /// Delete email accounts
+        /// </summary>
+        /// <param name="emailAccounts">Email accounts</param>
+        void DeleteEmailAccounts(IList<EmailAccount> emailAccounts);
+
+        /// <summary>
+        /// Get email accounts
+        /// </summary>
+        /// <param name="emailAccountIds">Email accounts identifiers</param>
+        /// <returns>Email accounts</returns>
+        IList<EmailAccount> GetEmailAccountsByIds(int[] emailAccountIds);
     }
 }

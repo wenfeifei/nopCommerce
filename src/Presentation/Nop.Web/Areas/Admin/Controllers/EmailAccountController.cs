@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core;
 using Nop.Core.Domain.Messages;
@@ -279,6 +281,28 @@ namespace Nop.Web.Areas.Admin.Controllers
                 _notificationService.ErrorNotification(exc);
                 return RedirectToAction("Edit", new { id = emailAccount.Id });
             }
+        }
+
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var emailAccounts = _emailAccountService.GetEmailAccountsByIds(selectedIds.ToArray());
+                _emailAccountService.DeleteEmailAccounts(emailAccounts);
+
+                foreach (var emailAccount in emailAccounts)
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteEmailAccount",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteEmailAccount"), emailAccount.Id), emailAccount);
+                }
+            }
+
+            return Json(new { Result = true });
         }
 
         #endregion
