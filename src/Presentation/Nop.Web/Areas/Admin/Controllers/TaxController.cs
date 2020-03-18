@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Tax;
 using Nop.Services.Configuration;
@@ -166,6 +168,21 @@ namespace Nop.Web.Areas.Admin.Controllers
             _taxCategoryService.DeleteTaxCategory(taxCategory);
 
             return new NullJsonResult();
+        }
+
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageTaxSettings))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var languages = _taxCategoryService.GetTaxCategoriesByIds(selectedIds.ToArray());
+                _taxCategoryService.DeleteTaxCategories(languages);
+            }
+
+            return Json(new { Result = true });
         }
 
         #endregion

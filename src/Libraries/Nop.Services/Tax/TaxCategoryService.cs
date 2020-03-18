@@ -50,6 +50,21 @@ namespace Nop.Services.Tax
         }
 
         /// <summary>
+        /// Delete tax categories
+        /// </summary>
+        /// <param name="taxCategories">Tax categories</param>
+        public virtual void DeleteTaxCategories(IList<TaxCategory> taxCategories)
+        {
+            if (taxCategories == null)
+                throw new ArgumentNullException(nameof(taxCategories));
+
+            foreach (var taxCategory in taxCategories)
+            {
+                DeleteTaxCategory(taxCategory);
+            }
+        }
+
+        /// <summary>
         /// Gets all tax categories
         /// </summary>
         /// <returns>Tax categories</returns>
@@ -75,6 +90,23 @@ namespace Nop.Services.Tax
                 return null;
 
             return _taxCategoryRepository.ToCachedGetById(taxCategoryId);
+        }
+
+        /// <summary>
+        /// Get tax categories
+        /// </summary>
+        /// <param name="taxCategoriesIds">Tax categories identifiers</param>
+        /// <returns>Tax categories</returns>
+        public virtual IList<TaxCategory> GetTaxCategoriesByIds(int[] taxCategoriesIds)
+        {
+            if (taxCategoriesIds == null || taxCategoriesIds.Length == 0)
+                return new List<TaxCategory>();
+
+            var query = from t in _taxCategoryRepository.Table
+                        where taxCategoriesIds.Contains(t.Id)
+                        select t;
+
+            return query.ToList();
         }
 
         /// <summary>

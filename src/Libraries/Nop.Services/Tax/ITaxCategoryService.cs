@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Nop.Core.Domain.Tax;
 
 namespace Nop.Services.Tax
@@ -38,5 +38,18 @@ namespace Nop.Services.Tax
         /// </summary>
         /// <param name="taxCategory">Tax category</param>
         void UpdateTaxCategory(TaxCategory taxCategory);
+
+        /// <summary>
+        /// Delete tax categories
+        /// </summary>
+        /// <param name="taxCategories">Tax categories</param>
+        void DeleteTaxCategories(IList<TaxCategory> taxCategories);
+
+        /// <summary>
+        /// Get tax categories
+        /// </summary>
+        /// <param name="taxCategoriesIds">Tax categories identifiers</param>
+        /// <returns>Tax categories</returns>
+        IList<TaxCategory> GetTaxCategoriesByIds(int[] taxCategoriesIds);
     }
 }
