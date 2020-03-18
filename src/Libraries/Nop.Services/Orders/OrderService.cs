@@ -171,6 +171,21 @@ namespace Nop.Services.Orders
         }
 
         /// <summary>
+        /// Delete orders
+        /// </summary>
+        /// <param name="orders">Orders</param>
+        public virtual void DeleteOrders(IList<Order> orders)
+        {
+            if (orders == null)
+                throw new ArgumentNullException(nameof(orders));
+
+            foreach (var order in orders)
+            {
+                DeleteOrder(order);
+            }
+        }
+
+        /// <summary>
         /// Search orders
         /// </summary>
         /// <param name="storeId">Store identifier; 0 to load all orders</param>

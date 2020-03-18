@@ -2008,6 +2008,20 @@ namespace Nop.Web.Areas.Admin.Controllers
             return View(model);
         }
 
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageOrders))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                _orderService.DeleteOrders(_orderService.GetOrdersByIds(selectedIds.ToArray()).Where(p => _workContext.CurrentVendor == null).ToList());
+            }
+
+            return Json(new { Result = true });
+        }
+
         #endregion
 
         #endregion

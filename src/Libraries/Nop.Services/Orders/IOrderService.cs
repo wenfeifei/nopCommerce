@@ -55,6 +55,12 @@ namespace Nop.Services.Orders
         void DeleteOrder(Order order);
 
         /// <summary>
+        /// Delete orders
+        /// </summary>
+        /// <param name="orders">Orders</param>
+        void DeleteOrders(IList<Order> orders);
+
+        /// <summary>
         /// Search orders
         /// </summary>
         /// <param name="storeId">Store identifier; null to load all orders</param>

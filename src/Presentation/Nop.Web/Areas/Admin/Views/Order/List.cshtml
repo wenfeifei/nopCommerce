@@ -80,6 +80,11 @@
                     </li>
                 </ul>
             </div>
+            <button type="button" id="delete-selected" class="btn bg-red">
+                <i class="fa fa-trash-o"></i>
+                @T("Admin.Common.Delete.Selected")
+            </button>
+            <nop-action-confirmation asp-button-id="delete-selected" />
             @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.OrderListButtons })
         </div>
     </div>
@@ -291,7 +296,7 @@
                                 FooterCallback = !Model.IsLoggedInAsVendor ? "ordersfootercallback" : null,
                                 FooterColumns = !Model.IsLoggedInAsVendor ? 10 : 0,
                                 Filters = new List<FilterParameter>
-                                                {
+                                                                {
                                                     new FilterParameter(nameof(Model.StartDate), typeof(DateTime?)),
                                                     new FilterParameter(nameof(Model.EndDate), typeof(DateTime?)),
                                                     new FilterParameter(nameof(Model.OrderStatusIds)),
@@ -310,7 +315,7 @@
                                                 }
                             };
                             gridModel.ColumnCollection = new List<ColumnProperty>
-                            {
+                                            {
                                 new ColumnProperty(nameof(OrderModel.Id))
                                 {
                                     IsMasterCheckBox = true,
@@ -456,7 +461,32 @@
                                     }
                                 });
                             }
+
+                            $(document).ready(function () {
+                                    $('#delete-selected-action-confirmation-submit-button').bind('click', function () {
+                                        var postData = {
+                                            selectedIds: selectedIds
+                                        };
+                                        addAntiForgeryToken(postData);
+                                        $.ajax({
+                                            cache: false,
+                                            type: "POST",
+                                            url: "@(Url.Action("DeleteSelected", "Order"))",
+                                            data: postData,
+                                            error: function (jqXHR, textStatus, errorThrown) {
+                                                $('#deleteSelectedFailed-info').text(errorThrown);
+                                                $('#deleteSelectedFailed').click();
+                                            },
+                                            complete: function (jqXHR, textStatus) {
+                                                updateTable('#orders-grid');
+                                            }
+                                        });
+                                        $('#delete-selected-action-confirmation').modal('toggle');
+                                        return false;
+                                    });
+                                });
                         </script>
+                        <nop-alert asp-alert-id="deleteSelectedFailed" />
                     </div>
                 </div>
             </div>
