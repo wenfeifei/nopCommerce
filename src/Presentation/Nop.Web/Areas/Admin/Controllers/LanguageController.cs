@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -287,6 +288,29 @@ namespace Nop.Web.Areas.Admin.Controllers
             return Json(availableFlagFileNames);
         }
 
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageLanguages))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var languages = _languageService.GetLanguagesByIds(selectedIds.ToArray());
+                _languageService.DeleteLanguages(languages);
+
+                foreach (var language in languages)
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteLanguage",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteLanguage"), language.Id), language);
+                }
+            }
+
+            return Json(new { Result = true });
+        }
+
+
         #endregion
 
         #region Resources
@@ -453,7 +477,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 return RedirectToAction("Edit", new { id = language.Id });
             }
         }
-
+        
         #endregion
     }
 }

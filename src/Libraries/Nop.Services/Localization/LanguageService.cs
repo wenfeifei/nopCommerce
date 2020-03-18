@@ -80,6 +80,21 @@ namespace Nop.Services.Localization
         }
 
         /// <summary>
+        /// Delete languages
+        /// </summary>
+        /// <param name="languages">Languages</param>
+        public virtual void DeleteLanguages(IList<Language> languages)
+        {
+            if (languages == null)
+                throw new ArgumentNullException(nameof(languages));
+
+            foreach (var language in languages)
+            {
+                DeleteLanguage(language);
+            }
+        }
+
+        /// <summary>
         /// Gets all languages
         /// </summary>
         /// <param name="storeId">Load records allowed only in a specified store; pass 0 to load all records</param>
@@ -123,6 +138,23 @@ namespace Nop.Services.Localization
                 return null;
 
             return _languageRepository.ToCachedGetById(languageId);
+        }
+
+        /// <summary>
+        /// Get languages
+        /// </summary>
+        /// <param name="languagesIds">Languages identifiers</param>
+        /// <returns>Languages</returns>
+        public virtual IList<Language> GetLanguagesByIds(int[] languagesIds)
+        {
+            if (languagesIds == null || languagesIds.Length == 0)
+                return new List<Language>();
+
+            var query = from l in _languageRepository.Table
+                        where languagesIds.Contains(l.Id)
+                        select l;
+
+            return query.ToList();
         }
 
         /// <summary>

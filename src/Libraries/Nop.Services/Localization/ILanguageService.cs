@@ -47,5 +47,18 @@ namespace Nop.Services.Localization
         /// <param name="language">Language</param>
         /// <returns>ISO language code</returns>
         string GetTwoLetterIsoLanguageName(Language language);
+
+        /// <summary>
+        /// Delete languages
+        /// </summary>
+        /// <param name="languages">Languages</param>
+        void DeleteLanguages(IList<Language> languages);
+
+        /// <summary>
+        /// Get languages
+        /// </summary>
+        /// <param name="languagesIds">Languages identifiers</param>
+        /// <returns>Languages</returns>
+        IList<Language> GetLanguagesByIds(int[] languagesIds);
     }
 }
