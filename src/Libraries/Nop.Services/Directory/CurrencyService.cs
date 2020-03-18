@@ -63,6 +63,21 @@ namespace Nop.Services.Directory
         }
 
         /// <summary>
+        /// Deletes currencies
+        /// </summary>
+        /// <param name="currencies">Currencies</param>
+        public virtual void DeleteCurrencies(IList<Currency> currencies)
+        {
+            if (currencies == null)
+                throw new ArgumentNullException(nameof(currencies));
+
+            foreach (var currency in currencies)
+            {
+                DeleteCurrency(currency);
+            }
+        }
+
+        /// <summary>
         /// Gets a currency
         /// </summary>
         /// <param name="currencyId">Currency identifier</param>
@@ -73,6 +88,23 @@ namespace Nop.Services.Directory
                 return null;
             
             return _currencyRepository.ToCachedGetById(currencyId);
+        }
+
+        /// <summary>
+        /// Get currencies
+        /// </summary>
+        /// <param name="currenciesIds">Currencies identifiers</param>
+        /// <returns>Currencies</returns>
+        public virtual IList<Currency> GetCurrenciesByIds(int[] currenciesIds)
+        {
+            if (currenciesIds == null || currenciesIds.Length == 0)
+                return new List<Currency>();
+
+            var query = from c in _currencyRepository.Table
+                        where currenciesIds.Contains(c.Id)
+                        select c;
+
+            return query.ToList();
         }
 
         /// <summary>

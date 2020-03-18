@@ -25,6 +25,11 @@
                 <i class="fa fa-plus-square"></i>
                 @T("Admin.Common.AddNew")
             </a>
+            <button type="button" id="delete-selected" class="btn bg-red">
+                <i class="fa fa-trash-o"></i>
+                @T("Admin.Common.Delete.Selected")
+            </button>
+            <nop-action-confirmation asp-button-id="delete-selected" />
             @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.CurrencyListButtons })
         </div>
     </div>
@@ -64,6 +69,13 @@
                             LengthMenu = Model.AvailablePageSizes,
                             ColumnCollection = new List<ColumnProperty>
                             {
+                                new ColumnProperty(nameof(CampaignModel.Id))
+                                {
+                                    IsMasterCheckBox = true,
+                                    Render = new RenderCheckBox("checkbox_currencies"),
+                                    ClassName =  NopColumnClassDefaults.CenterAll,
+                                    Width = "50",
+                                },
                                 new ColumnProperty(nameof(CurrencyModel.Name))
                                 {
                                     Title = T("Admin.Configuration.Currencies.Fields.Name").Text,
@@ -136,68 +148,90 @@
                             }
                         })
 
+                        <button type="submit" class="btn btn-default" id="btnMarkPERC" style="display:none" />
+                        <button type="submit" class="btn btn-default" id="btnMarkPSC" style="display:none" />
+
+                        <script>
+                            var selectedId;
+
+                            $(document).ready(function () {
+
+                                $("#btnMarkPSC-action-confirmation-submit-button").bind("click", function () {
+                                    var postData = {
+                                        id: selectedId
+                                    };
+                                    addAntiForgeryToken(postData);
+                                    $.ajax({
+                                        cache: false,
+                                        type: "POST",
+                                        url: "@(Url.Action("MarkAsPrimaryStoreCurrency", "Currency"))",
+                                        data: postData,
+                                        success: function (data, textStatus, jqXHR) {
+                                            updateTable('#currencies-grid');
+                                        },
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            $("#currencyAlert").click();
+                                        }
+                                    });
+                                    $('#btnMarkPSC-action-confirmation').modal('toggle');
+                                });
+
+                                $("#btnMarkPERC-action-confirmation-submit-button").bind("click", function () {
+                                    var postData = {
+                                        id: selectedId
+                                    };
+                                    addAntiForgeryToken(postData);
+                                    $.ajax({
+                                        cache: false,
+                                        type: "POST",
+                                        url: "@(Url.Action("MarkAsPrimaryExchangeRateCurrency", "Currency"))",
+                                        data: postData,
+                                        success: function (data, textStatus, jqXHR) {
+                                            updateTable('#currencies-grid');
+                                        },
+                                        error: function (jqXHR, textStatus, errorThrown) {
+                                            $("#currencyAlert").click();
+                                        }
+                                    });
+                                    $('#btnMarkPERC-action-confirmation').modal('toggle');
+                                });
+
+                            });
+
+                            function markAsPrimaryExchangeRateCurrency(id) {
+                                selectedId = id;
+                                $("#btnMarkPERC").click();
+                            };
+
+                            function markAsPrimaryStoreCurrency(id) {
+                                selectedId = id;
+                                $("#btnMarkPSC").click();
+                            };
                         
-                    <button type="submit" class="btn btn-default" id="btnMarkPERC" style="display:none" />
-                    <button type="submit" class="btn btn-default" id="btnMarkPSC" style="display:none" />
-
-                    <script>
-                        var selectedId;
-
-                        $(document).ready(function () {
-
-                            $("#btnMarkPSC-action-confirmation-submit-button").bind("click", function () {
+                             $('#delete-selected-action-confirmation-submit-button').bind('click', function () {
                                 var postData = {
-                                    id: selectedId
+                                    selectedIds: selectedIds
                                 };
                                 addAntiForgeryToken(postData);
                                 $.ajax({
                                     cache: false,
                                     type: "POST",
-                                    url: "@(Url.Action("MarkAsPrimaryStoreCurrency", "Currency"))",
+                                    url: "@(Url.Action("DeleteSelected", "Currency"))",
                                     data: postData,
-                                    success: function (data, textStatus, jqXHR) {
-                                        updateTable('#currencies-grid');
-                                    },
                                     error: function (jqXHR, textStatus, errorThrown) {
-                                        $("#currencyAlert").click();
+                                        $('#deleteSelectedFailed-info').text(errorThrown);
+                                        $('#deleteSelectedFailed').click();
+                                            },
+                                    complete: function (jqXHR, textStatus) {
+                                        updateTable('#currencies-grid');
                                     }
                                 });
-                                $('#btnMarkPSC-action-confirmation').modal('toggle');
+                                $('#delete-selected-action-confirmation').modal('toggle');
+                                return false;
                             });
-
-                            $("#btnMarkPERC-action-confirmation-submit-button").bind("click", function () {
-                                var postData = {
-                                    id: selectedId
-                                };
-                                addAntiForgeryToken(postData);
-                                $.ajax({
-                                    cache: false,
-                                    type: "POST",
-                                    url: "@(Url.Action("MarkAsPrimaryExchangeRateCurrency", "Currency"))",
-                                    data: postData,
-                                    success: function (data, textStatus, jqXHR) {
-                                        updateTable('#currencies-grid');
-                                    },
-                                    error: function (jqXHR, textStatus, errorThrown) {
-                                        $("#currencyAlert").click();
-                                    }
-                                });
-                                $('#btnMarkPERC-action-confirmation').modal('toggle');
-                            });
-
-                        });
-
-                        function markAsPrimaryExchangeRateCurrency(id) {
-                            selectedId = id;
-                            $("#btnMarkPERC").click();
-                        };
-
-                        function markAsPrimaryStoreCurrency(id) {
-                            selectedId = id;
-                            $("#btnMarkPSC").click();
-                        };
-                    </script>
+                        </script>
                     </div>
+                    <nop-alert asp-alert-id="deleteSelectedFailed" />
                 </div>
                 @if (Model.ExchangeRateProviderModel.ExchangeRates?.Any() ?? false)
                 {

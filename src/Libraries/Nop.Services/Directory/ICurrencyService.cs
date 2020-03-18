@@ -50,6 +50,19 @@ namespace Nop.Services.Directory
         /// <param name="currency">Currency</param>
         void UpdateCurrency(Currency currency);
 
+        /// <summary>
+        /// Deletes currencies
+        /// </summary>
+        /// <param name="currencies">Currencies</param>
+        void DeleteCurrencies(IList<Currency> currencies);
+
+        /// <summary>
+        /// Get currencies
+        /// </summary>
+        /// <param name="currenciesIds">Currencies identifiers</param>
+        /// <returns>Currencies</returns>
+        IList<Currency> GetCurrenciesByIds(int[] currenciesIds);
+
         #endregion
 
         #region Conversions

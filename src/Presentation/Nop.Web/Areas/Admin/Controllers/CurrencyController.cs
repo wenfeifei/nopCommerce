@@ -362,6 +362,28 @@ namespace Nop.Web.Areas.Admin.Controllers
             }
         }
 
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCurrencies))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var currencies = _currencyService.GetCurrenciesByIds(selectedIds.ToArray());
+                _currencyService.DeleteCurrencies(currencies);
+
+                foreach (var currency in currencies)
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteCurrency",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteCurrency"), currency.Id), currency);
+                }
+            }
+
+            return Json(new { Result = true });
+        }
+
         #endregion
     }
 }
