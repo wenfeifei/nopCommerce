@@ -97,9 +97,9 @@ namespace Nop.Services.Orders
             if (giftCardIds == null || giftCardIds.Length == 0)
                 return new List<GiftCard>();
 
-            var query = from c in _giftCardRepository.Table
-                        where giftCardIds.Contains(c.Id)
-                        select c;
+            var query = from gc in _giftCardRepository.Table
+                        where giftCardIds.Contains(gc.Id)
+                        select gc;
             var giftCards = query.ToList();
             //sort by passed identifiers
             var sortedGiftCards = new List<GiftCard>();

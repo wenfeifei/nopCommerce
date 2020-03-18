@@ -451,7 +451,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         [HttpPost]
         public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageVendors))
                 return AccessDeniedView();
 
             if (selectedIds != null)
@@ -463,7 +463,7 @@ namespace Nop.Web.Areas.Admin.Controllers
                 {
                     //activity log
                     _customerActivityService.InsertActivity("DeleteVendor",
-                        string.Format(_localizationService.GetResource("ActivityLog.DeleteVendor"), vendor.Name), vendor);
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteVendor"), vendor.Id), vendor);
                 }
             }
 

@@ -190,9 +190,9 @@ namespace Nop.Services.Discounts
             if (discountsIds == null || discountsIds.Length == 0)
                 return new List<Discount>();
 
-            var query = from p in _discountRepository.Table
-                        where discountsIds.Contains(p.Id)
-                        select p;
+            var query = from d in _discountRepository.Table
+                        where discountsIds.Contains(d.Id)
+                        select d;
 
             return query.ToList();
         }

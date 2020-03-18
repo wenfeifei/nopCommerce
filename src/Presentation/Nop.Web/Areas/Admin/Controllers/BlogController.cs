@@ -255,7 +255,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         [HttpPost]
         public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
         {
-            if (!_permissionService.Authorize(StandardPermissionProvider.ManageManufacturers))
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageBlog))
                 return AccessDeniedView();
 
             if (selectedIds != null)

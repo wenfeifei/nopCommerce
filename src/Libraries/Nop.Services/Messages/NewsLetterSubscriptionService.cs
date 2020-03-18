@@ -201,9 +201,9 @@ namespace Nop.Services.Messages
             if (newsLetterSubscriptionsIds == null || newsLetterSubscriptionsIds.Length == 0)
                 return new List<NewsLetterSubscription>();
 
-            var query = from p in _subscriptionRepository.Table
-                        where newsLetterSubscriptionsIds.Contains(p.Id)
-                        select p;
+            var query = from s in _subscriptionRepository.Table
+                        where newsLetterSubscriptionsIds.Contains(s.Id)
+                        select s;
 
             return query.ToList();
         }

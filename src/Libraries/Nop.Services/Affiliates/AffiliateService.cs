@@ -81,9 +81,9 @@ namespace Nop.Services.Affiliates
             if (affiliatesIds == null || affiliatesIds.Length == 0)
                 return new List<Affiliate>();
 
-            var query = from p in _affiliateRepository.Table
-                        where affiliatesIds.Contains(p.Id)
-                        select p;
+            var query = from a in _affiliateRepository.Table
+                        where affiliatesIds.Contains(a.Id)
+                        select a;
 
             return query.ToList();
         }
