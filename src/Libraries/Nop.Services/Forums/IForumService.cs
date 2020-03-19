@@ -462,5 +462,31 @@ namespace Nop.Services.Forums
         /// <param name="forumTopic">ForumTopic</param>
         /// <returns>ForumTopic SE (search engine) name</returns>
         string GetTopicSeName(ForumTopic forumTopic);
+
+        /// <summary>
+        /// Delete forums
+        /// </summary>
+        /// <param name="forums">Forums</param>
+        void DeleteForums(IList<Forum> forums);
+
+        /// <summary>
+        /// Get forums
+        /// </summary>
+        /// <param name="ForumsIds">Forums identifiers</param>
+        /// <returns>Forums</returns>
+        IList<Forum> GetForumsByIds(int[] forumsIds);
+
+        /// <summary>
+        /// Get forum groups
+        /// </summary>
+        /// <param name="forumGroupsIds">The forum groups identifiers</param>
+        /// <returns>Forum groups</returns>
+        IList<ForumGroup> GetForumGroupsByIds(int[] forumGroupsIds);
+
+        /// <summary>
+        /// Delete forum groups
+        /// </summary>
+        /// <param name="forumGroups">Forum groups</param>
+        void DeleteForumGroups(IList<ForumGroup> forumGroups);
     }
 }

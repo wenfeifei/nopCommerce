@@ -250,6 +250,21 @@ namespace Nop.Services.Forums
         }
 
         /// <summary>
+        /// Delete forum groups
+        /// </summary>
+        /// <param name="forumGroups">Forum groups</param>
+        public virtual void DeleteForumGroups(IList<ForumGroup> forumGroups)
+        {
+            if (forumGroups == null)
+                throw new ArgumentNullException(nameof(forumGroups));
+
+            foreach (var forumGroup in forumGroups)
+            {
+                DeleteForumGroup(forumGroup);
+            }
+        }
+
+        /// <summary>
         /// Gets a forum group
         /// </summary>
         /// <param name="forumGroupId">The forum group identifier</param>
@@ -262,6 +277,23 @@ namespace Nop.Services.Forums
             }
 
             return _forumGroupRepository.ToCachedGetById(forumGroupId);
+        }
+
+        /// <summary>
+        /// Get forum groups
+        /// </summary>
+        /// <param name="forumGroupsIds">The forum groups identifiers</param>
+        /// <returns>Forum groups</returns>
+        public virtual IList<ForumGroup> GetForumGroupsByIds(int[] forumGroupsIds)
+        {
+            if (forumGroupsIds == null || forumGroupsIds.Length == 0)
+                return new List<ForumGroup>();
+
+            var query = from fg in _forumGroupRepository.Table
+                        where forumGroupsIds.Contains(fg.Id)
+                        select fg;
+
+            return query.ToList();
         }
 
         /// <summary>
@@ -355,6 +387,21 @@ namespace Nop.Services.Forums
         }
 
         /// <summary>
+        /// Delete forums
+        /// </summary>
+        /// <param name="forums">Forums</param>
+        public virtual void DeleteForums(IList<Forum> forums)
+        {
+            if (forums == null)
+                throw new ArgumentNullException(nameof(forums));
+
+            foreach (var forum in forums)
+            {
+                DeleteForum(forum);
+            }
+        }
+
+        /// <summary>
         /// Gets a forum
         /// </summary>
         /// <param name="forumId">The forum identifier</param>
@@ -365,6 +412,23 @@ namespace Nop.Services.Forums
                 return null;
 
             return _forumRepository.ToCachedGetById(forumId);
+        }
+
+        /// <summary>
+        /// Get forums
+        /// </summary>
+        /// <param name="ForumsIds">Forums identifiers</param>
+        /// <returns>Forums</returns>
+        public virtual IList<Forum> GetForumsByIds(int[] forumsIds)
+        {
+            if (forumsIds == null || forumsIds.Length == 0)
+                return new List<Forum>();
+
+            var query = from f in _forumRepository.Table
+                        where forumsIds.Contains(f.Id)
+                        select f;
+
+            return query.ToList();
         }
 
         /// <summary>

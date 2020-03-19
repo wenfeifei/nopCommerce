@@ -454,6 +454,12 @@ set @resources='
   <LocaleResource Name="BackInStockSubscriptions.Notification.Unsubscribed">
     <Value>Unsubscribed</Value>
   </LocaleResource>
+   <LocaleResource Name="Admin.ContentManagement.Forums.ForumGroup.DeleteSelectedForumGroups">
+    <Value>Delete Selected Forum Groups</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.ContentManagement.Forums.Forum.DeleteSelectedForums">
+    <Value>Delete Selected Forums</Value>
+  </LocaleResource>
 </Language>
 '
 

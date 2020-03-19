@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Nop.Core.Domain.Forums;
 using Nop.Services.Forums;
@@ -297,6 +299,36 @@ namespace Nop.Web.Areas.Admin.Controllers
             _notificationService.SuccessNotification(_localizationService.GetResource("Admin.ContentManagement.Forums.Forum.Deleted"));
 
             return RedirectToAction("List");
+        }
+
+        [HttpPost]
+        public virtual IActionResult DeleteSelectedForumGroups(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageForums))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var forumGroups = _forumService.GetForumGroupsByIds(selectedIds.ToArray());
+                _forumService.DeleteForumGroups(forumGroups);
+            }
+
+            return Json(new { Result = true });
+        }
+
+        [HttpPost]
+        public virtual IActionResult DeleteSelectedForums(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageForums))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var forums = _forumService.GetForumsByIds(selectedIds.ToArray());
+                _forumService.DeleteForums(forums);
+            }
+
+            return Json(new { Result = true });
         }
 
         #endregion

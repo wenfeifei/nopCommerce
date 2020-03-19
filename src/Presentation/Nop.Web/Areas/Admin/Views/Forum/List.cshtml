@@ -14,6 +14,17 @@
     <div class="pull-right">
         <a asp-action="CreateForumGroup" class="btn btn-primary">@T("Admin.ContentManagement.Forums.ForumGroup.CreateForumGroup")</a>
         <a asp-action="CreateForum" class="btn btn-primary">@T("Admin.ContentManagement.Forums.Forum.CreateForum")</a>
+        <button type="button" id="delete-selected-forum-groups" class="btn bg-red">
+            <i class="fa fa-trash-o"></i>
+            @T("Admin.ContentManagement.Forums.ForumGroup.DeleteSelectedForumGroups")
+        </button>
+        <nop-action-confirmation asp-button-id="delete-selected-forum-groups" />
+
+        <button type="button" id="delete-selected-forums" class="btn bg-red">
+            <i class="fa fa-trash-o"></i>
+            @T("Admin.ContentManagement.Forums.Forum.DeleteSelectedForums")
+        </button>
+        <nop-action-confirmation asp-button-id="delete-selected-forums" />
         @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.ForumListButtons })
     </div>
 </div>
@@ -32,6 +43,13 @@
                         LengthMenu = Model.AvailablePageSizes,
                         ColumnCollection = new List<ColumnProperty>
                         {
+                            new ColumnProperty(nameof(ForumGroupModel.Id))
+                            {
+                                IsMasterCheckBox = true,
+                                Render = new RenderCheckBox("checkbox_forumgropus"),
+                                ClassName =  NopColumnClassDefaults.CenterAll,
+                                Width = "50",
+                            },
                             new ColumnProperty(null)
                             {
                                 Render = new RenderChildCaret(),
@@ -77,6 +95,13 @@
                             },
                             ColumnCollection = new List<ColumnProperty>
                             {
+                                new ColumnProperty(nameof(ForumGroupModel.Id))
+                                {
+                                    IsMasterCheckBox = true,
+                                    Render = new RenderCheckBox("checkbox_forums"),
+                                    ClassName =  NopColumnClassDefaults.CenterAll,
+                                    Width = "50",
+                                },
                                 new ColumnProperty(nameof(ForumModel.Name))
                                 {
                                     Title = T("Admin.ContentManagement.Forums.Forum.Fields.Name").Text,
@@ -104,7 +129,53 @@
                             }
                         }
                     })
+                    <script>
+                        $('#delete-selected-forum-groups-action-confirmation-submit-button').bind('click', function () {
+                            var postData = {
+                                selectedIds: selectedIds
+                            };
+                            addAntiForgeryToken(postData);
+                            $.ajax({
+                                cache: false,
+                                type: "POST",
+                                url: "@(Url.Action("DeleteSelectedForumGroups", "Forum"))",
+                                data: postData,
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    $('#deleteSelectedFailed-info').text(errorThrown);
+                                    $('#deleteSelectedFailed').click();
+                                        },
+                                complete: function (jqXHR, textStatus) {
+                                    updateTable('#forumgroup-grid');
+                                }
+                            });
+                            $('#delete-selected-forum-groups-action-confirmation').modal('toggle');
+                            return false;
+                        });
+
+                        $('#delete-selected-forums-action-confirmation-submit-button').bind('click', function () {
+                            var postData = {
+                                selectedIds: selectedIds
+                            };
+                            addAntiForgeryToken(postData);
+                            $.ajax({
+                                cache: false,
+                                type: "POST",
+                                url: "@(Url.Action("DeleteSelectedForums", "Forum"))",
+                                data: postData,
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    $('#deleteSelectedFailed-info').text(errorThrown);
+                                    $('#deleteSelectedFailed').click();
+                                        },
+                                complete: function (jqXHR, textStatus) {
+                                    updateTable('#forumgroup-grid');
+                                }
+                            });
+                            $('#delete-selected-forums-action-confirmation').modal('toggle');
+                            return false;
+                        });
+                    </script>
                 </div>
+                <nop-alert asp-alert-id="deleteSelectedFailed" />
             </div>
         </div>
     </div>

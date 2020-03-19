@@ -9279,6 +9279,9 @@
   <LocaleResource Name="Admin.ContentManagement.Forums.Forum.CreateForum">
     <Value>Add New Forum</Value>
   </LocaleResource>
+  <LocaleResource Name="Admin.ContentManagement.Forums.Forum.DeleteSelectedForums">
+    <Value>Delete Selected Forums</Value>
+  </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Forums.Forum.Deleted">
     <Value>The forum has been deleted successfully.</Value>
   </LocaleResource>
@@ -9332,6 +9335,9 @@
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Forums.ForumGroup.CreateForumGroup">
     <Value>Add New Forum Group</Value>
+  </LocaleResource>
+  <LocaleResource Name="Admin.ContentManagement.Forums.ForumGroup.DeleteSelectedForumGroups">
+    <Value>Delete Selected Forum Groups</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.Forums.ForumGroup.Deleted">
     <Value>The forum group has been deleted successfully.</Value>
