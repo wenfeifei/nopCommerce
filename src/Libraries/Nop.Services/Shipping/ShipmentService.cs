@@ -76,6 +76,21 @@ namespace Nop.Services.Shipping
         }
 
         /// <summary>
+        /// Delete shipments
+        /// </summary>
+        /// <param name="shipments">Shipments</param>
+        public virtual void DeleteShipments(IList<Shipment> shipments)
+        {
+            if (shipments == null)
+                throw new ArgumentNullException(nameof(shipments));
+
+            foreach (var shipment in shipments)
+            {
+                DeleteShipment(shipment);
+            }
+        }
+
+        /// <summary>
         /// Search shipments
         /// </summary>
         /// <param name="vendorId">Vendor identifier; 0 to load all records</param>

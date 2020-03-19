@@ -49,6 +49,11 @@
                 <i class="fa fa-check-square-o"></i>
                 @T("Admin.Orders.Shipments.DeliverySelected")
             </button>
+            <button type="button" id="delete-selected" class="btn bg-red">
+                <i class="fa fa-trash-o"></i>
+                @T("Admin.Common.Delete.Selected")
+            </button>
+            <nop-action-confirmation asp-button-id="delete-selected" />
             @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.OrderShipmentListButtons })
         </div>
     </div>
@@ -280,9 +285,34 @@
                                 }
                             }
                         }
-                    })                  
+                    })     
                 </div>
-            </div>
+                    <script>
+                        $('#delete-selected-action-confirmation-submit-button').bind('click', function () {
+                            var postData = {
+                                selectedIds: selectedIds
+                            };
+                            addAntiForgeryToken(postData);
+                            $.ajax({
+                                cache: false,
+                                type: "POST",
+                                url: "@(Url.Action("DeleteSelectedShipments", "Order"))",
+                                data: postData,
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    $('#deleteSelectedFailed-info').text(errorThrown);
+                                    $('#deleteSelectedFailed').click();
+                                        },
+                                complete: function (jqXHR, textStatus) {
+                                    updateTable('#shipments-grid');
+                                }
+                            });
+                            $('#delete-selected-action-confirmation').modal('toggle');
+                            return false;
+                        });
+                    </script>
+                </div>
+                <nop-alert asp-alert-id="deleteSelectedFailed" />
+
                 <script>
                     $(document).ready(function() {
                         //load states when changing a country dropdownlist
@@ -361,9 +391,7 @@
                             return false;
                         });
                     });
-                                       
                 </script>
-                
             </div>
         </div>
     </div>

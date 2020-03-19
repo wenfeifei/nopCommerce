@@ -18,6 +18,12 @@ namespace Nop.Services.Shipping
         /// <param name="shipment">Shipment</param>
         void DeleteShipment(Shipment shipment);
 
+        // <summary>
+        /// Delete shipments
+        /// </summary>
+        /// <param name="shipments">Shipments</param>
+        void DeleteShipments(IList<Shipment> shipments);
+
         /// <summary>
         /// Search shipments
         /// </summary>

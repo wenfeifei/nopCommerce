@@ -2009,7 +2009,7 @@ namespace Nop.Web.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        public virtual IActionResult DeleteSelectedOrders(ICollection<int> selectedIds)
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageOrders))
                 return AccessDeniedView();
@@ -2414,6 +2414,21 @@ namespace Nop.Web.Areas.Admin.Controllers
 
             _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Orders.Shipments.Deleted"));
             return RedirectToAction("Edit", new { id = orderId });
+        }
+
+        [HttpPost]
+        public virtual IActionResult DeleteSelectedShipments(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageOrders))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var shipments = _shipmentService.GetShipmentsByIds(selectedIds.ToArray());
+                _shipmentService.DeleteShipments(shipments);
+            }
+
+            return Json(new { Result = true });
         }
 
         [HttpPost, ActionName("ShipmentDetails")]
