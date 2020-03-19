@@ -309,6 +309,21 @@ namespace Nop.Services.Shipping
         }
 
         /// <summary>
+        /// Delete warehouses
+        /// </summary>
+        /// <param name="warehouses">Warehouses</param>
+        public virtual void DeleteWarehouses(IList<Warehouse> warehouses)
+        {
+            if (warehouses == null)
+                throw new ArgumentNullException(nameof(warehouses));
+
+            foreach (var warehouse in warehouses)
+            {
+                DeleteWarehouse(warehouse);
+            }
+        }
+
+        /// <summary>
         /// Gets a warehouse
         /// </summary>
         /// <param name="warehouseId">The warehouse identifier</param>
@@ -319,6 +334,23 @@ namespace Nop.Services.Shipping
                 return null;
 
             return _warehouseRepository.ToCachedGetById(warehouseId);
+        }
+
+        /// <summary>
+        /// Get warehouses
+        /// </summary>
+        /// <param name="warehousesIds">Warehouses identifiers</param>
+        /// <returns>Warehouses</returns>
+        public virtual IList<Warehouse> GetWarehousesByIds(int[] warehousesIds)
+        {
+            if (warehousesIds == null || warehousesIds.Length == 0)
+                return new List<Warehouse>();
+
+            var query = from wh in _warehouseRepository.Table
+                        where warehousesIds.Contains(wh.Id)
+                        select wh;
+
+            return query.ToList();
         }
 
         /// <summary>

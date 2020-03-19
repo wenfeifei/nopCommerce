@@ -111,8 +111,21 @@ namespace Nop.Services.Shipping
         /// <param name="warehouse">Warehouse</param>
         void UpdateWarehouse(Warehouse warehouse);
 
+        /// <summary>
+        /// Delete warehouses
+        /// </summary>
+        /// <param name="warehouses">Warehouses</param>
+        void DeleteWarehouses(IList<Warehouse> warehouses);
+
+        /// <summary>
+        /// Get warehouses
+        /// </summary>
+        /// <param name="warehousesIds">Warehouses identifiers</param>
+        /// <returns>Warehouses</returns>
+        IList<Warehouse> GetWarehousesByIds(int[] warehousesIds);
+
         #endregion
-        
+
         #region Workflow
 
         /// <summary>

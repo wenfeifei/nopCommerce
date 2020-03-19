@@ -780,6 +780,28 @@ namespace Nop.Web.Areas.Admin.Controllers
             return RedirectToAction("Warehouses");
         }
 
+        [HttpPost]
+        public virtual IActionResult DeleteSelected(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageShippingSettings))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var warehouses = _shippingService.GetWarehousesByIds(selectedIds.ToArray());
+                _shippingService.DeleteWarehouses(warehouses);
+
+                foreach (var warehouse in warehouses)
+                {
+                    //activity log
+                    _customerActivityService.InsertActivity("DeleteWarehouse",
+                        string.Format(_localizationService.GetResource("ActivityLog.DeleteWarehouse"), warehouse.Id), warehouse);
+                }
+            }
+
+            return Json(new { Result = true });
+        }
+
         #endregion
 
         #region Restrictions
