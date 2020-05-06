@@ -294,6 +294,13 @@ function reloadAllDataTables(itemCount) {
 //scrolling and hidden DataTables issue workaround
 //More info - https://datatables.net/examples/api/tabs_and_scrolling.html
 $(document).ready(function () {
+  $('button[data-widget="collapse"]').on('click', function (e) {
+    // hack with waiting animation
+    // when page is loaded, box that should be collapsed have style 'display: none;' and table not updated
+    setTimeout(function () {
+      ensureDataTablesRendered();
+    }, 1);
+  });
   $('ul li a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     ensureDataTablesRendered();
   });
