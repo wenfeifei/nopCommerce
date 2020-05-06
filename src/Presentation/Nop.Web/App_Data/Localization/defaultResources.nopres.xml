@@ -3157,7 +3157,7 @@
     <Value>Specify period length for rental product. Price is specified for this period.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Products.Fields.RentalPriceLength.ShouldBeGreaterThanZero">
-    <Value>Rental period length	should be greater 0.</Value>
+    <Value>Rental period length should be greater 0.</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Products.Fields.RentalPricePeriod">
     <Value>Rental period</Value>
