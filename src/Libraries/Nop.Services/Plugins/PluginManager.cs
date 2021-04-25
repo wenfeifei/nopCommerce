@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Nop.Core.Domain.Customers;
-using Nop.Services.Caching;
 using Nop.Services.Customers;
 
 namespace Nop.Services.Plugins
@@ -13,50 +13,60 @@ namespace Nop.Services.Plugins
     /// <typeparam name="TPlugin">Type of plugin</typeparam>
     public partial class PluginManager<TPlugin> : IPluginManager<TPlugin> where TPlugin : class, IPlugin
     {
-        #region Constants
-
-        /// <summary>
-        /// Key format
-        /// <remarks>
-        /// {0} - system name of plugin
-        /// {1} - customer role IDs
-        /// {2} - store ID
-        /// </remarks>
-        /// </summary>
-        private const string KEY_FORMAT = "{0}-{1}-{2}";
-
-        #endregion
-
         #region Fields
 
-        private readonly Dictionary<string, IList<TPlugin>> _plugins = new Dictionary<string, IList<TPlugin>>();
-
-        private readonly ICacheKeyService _cacheKeyService;
         private readonly ICustomerService _customerService;
         private readonly IPluginService _pluginService;
+
+        private readonly Dictionary<string, IList<TPlugin>> _plugins = new Dictionary<string, IList<TPlugin>>();
 
         #endregion
 
         #region Ctor
 
-        public PluginManager(ICacheKeyService cacheKeyService,
-            ICustomerService customerService,
+        public PluginManager(ICustomerService customerService,
             IPluginService pluginService)
         {
-            _cacheKeyService = cacheKeyService;
             _customerService = customerService;
             _pluginService = pluginService;
         }
-        
+
         #endregion
 
         #region Utilities
 
-        protected virtual string GetKey(string systemName, Customer customer, int storeId)
+        /// <summary>
+        /// Prepare the dictionary key to store loaded plugins
+        /// </summary>
+        /// <param name="customer">Customer</param>
+        /// <param name="storeId">Store identifier</param>
+        /// <param name="systemName">Plugin system name</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the key
+        /// </returns>
+        protected virtual async Task<string> GetKeyAsync(Customer customer, int storeId, string systemName = null)
         {
-            var roles = customer == null ? Array.Empty<int>() : _customerService.GetCustomerRoleIds(customer);
+            return $"{storeId}-{(customer != null ? string.Join(',', await _customerService.GetCustomerRoleIdsAsync(customer)) : null)}-{systemName}";
+        }
 
-            return _cacheKeyService.PrepareKeyPrefix(KEY_FORMAT, systemName, roles, storeId);
+        /// <summary>
+        /// Load primary active plugin
+        /// </summary>
+        /// <param name="systemName">System name of primary active plugin</param>
+        /// <param name="customer">Filter by customer; pass null to load all plugins</param>
+        /// <param name="storeId">Filter by store; pass 0 to load all plugins</param>
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the plugin
+        /// </returns>
+        protected virtual async Task<TPlugin> LoadPrimaryPluginAsync(string systemName, Customer customer = null, int storeId = 0)
+        {
+            //try to get a plugin by system name or return the first loaded one (it's necessary to have a primary active plugin)
+            var plugin = await LoadPluginBySystemNameAsync(systemName, customer, storeId)
+                         ?? (await LoadAllPluginsAsync(customer, storeId)).FirstOrDefault();
+
+            return plugin;
         }
 
         #endregion
@@ -68,16 +78,16 @@ namespace Nop.Services.Plugins
         /// </summary>
         /// <param name="customer">Filter by customer; pass null to load all plugins</param>
         /// <param name="storeId">Filter by store; pass 0 to load all plugins</param>
-        /// <returns>List of plugins</returns>
-        public virtual IList<TPlugin> LoadAllPlugins(Customer customer = null, int storeId = 0)
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the list of plugins
+        /// </returns>
+        public virtual async Task<IList<TPlugin>> LoadAllPluginsAsync(Customer customer = null, int storeId = 0)
         {
             //get plugins and put them into the dictionary to avoid further loading
-            var key = GetKey(null, customer, storeId);
-
-            if (_plugins.ContainsKey(key)) 
-                return _plugins[key];
-
-            _plugins.Add(key, _pluginService.GetPlugins<TPlugin>(customer: customer, storeId: storeId).ToList());
+            var key = await GetKeyAsync(customer, storeId);
+            if (!_plugins.ContainsKey(key))
+                _plugins.Add(key, await _pluginService.GetPluginsAsync<TPlugin>(customer: customer, storeId: storeId));
 
             return _plugins[key];
         }
@@ -88,62 +98,49 @@ namespace Nop.Services.Plugins
         /// <param name="systemName">System name</param>
         /// <param name="customer">Filter by customer; pass null to load all plugins</param>
         /// <param name="storeId">Filter by store; pass 0 to load all plugins</param>
-        /// <returns>Plugin</returns>
-        public virtual TPlugin LoadPluginBySystemName(string systemName, Customer customer = null, int storeId = 0)
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the plugin
+        /// </returns>
+        public virtual async Task<TPlugin> LoadPluginBySystemNameAsync(string systemName, Customer customer = null, int storeId = 0)
         {
             if (string.IsNullOrEmpty(systemName))
                 return null;
 
             //try to get already loaded plugin
-            var key = GetKey(systemName, customer, storeId);
+            var key = await GetKeyAsync(customer, storeId, systemName);
             if (_plugins.ContainsKey(key))
                 return _plugins[key].FirstOrDefault();
 
-            //or get it from list of all loaded plugins
-            var pluginBySystemName = LoadAllPlugins(customer, storeId)
-                .FirstOrDefault(plugin => plugin.PluginDescriptor.SystemName.Equals(systemName, StringComparison.InvariantCultureIgnoreCase));
-
-            //or load it for the first time
-            if (pluginBySystemName == null)
-                pluginBySystemName = _pluginService
-                    .GetPluginDescriptorBySystemName<TPlugin>(systemName, customer: customer, storeId: storeId)
-                    ?.Instance<TPlugin>();
+            //or get it from list of all loaded plugins or load it for the first time
+            var pluginBySystemName = _plugins.TryGetValue(await GetKeyAsync(customer, storeId), out var plugins)
+                && plugins.FirstOrDefault(plugin =>
+                    plugin.PluginDescriptor.SystemName.Equals(systemName, StringComparison.InvariantCultureIgnoreCase)) is TPlugin loadedPlugin
+                ? loadedPlugin
+                : (await _pluginService.GetPluginDescriptorBySystemNameAsync<TPlugin>(systemName, customer: customer, storeId: storeId))?.Instance<TPlugin>();
 
             _plugins.Add(key, new List<TPlugin> { pluginBySystemName });
 
             return pluginBySystemName;
         }
-
-        /// <summary>
-        /// Load primary active plugin
-        /// </summary>
-        /// <param name="systemName">System name of primary active plugin</param>
-        /// <param name="customer">Filter by customer; pass null to load all plugins</param>
-        /// <param name="storeId">Filter by store; pass 0 to load all plugins</param>
-        /// <returns>Plugin</returns>
-        public virtual TPlugin LoadPrimaryPlugin(string systemName, Customer customer = null, int storeId = 0)
-        {
-            //try to get a plugin by system name or return the first loaded one (it's necessary to have a primary active plugin)
-            var plugin = LoadPluginBySystemName(systemName, customer, storeId)
-                ?? LoadAllPlugins(customer, storeId).FirstOrDefault();
-
-            return plugin;
-        }
-
+        
         /// <summary>
         /// Load active plugins
         /// </summary>
         /// <param name="systemNames">System names of active plugins</param>
         /// <param name="customer">Filter by customer; pass null to load all plugins</param>
         /// <param name="storeId">Filter by store; pass 0 to load all plugins</param>
-        /// <returns>List of active plugins</returns>
-        public virtual IList<TPlugin> LoadActivePlugins(List<string> systemNames, Customer customer = null, int storeId = 0)
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the list of active plugins
+        /// </returns>
+        public virtual async Task<IList<TPlugin>> LoadActivePluginsAsync(List<string> systemNames, Customer customer = null, int storeId = 0)
         {
             if (systemNames == null)
                 return new List<TPlugin>();
 
             //get loaded plugins according to passed system names
-            return LoadAllPlugins(customer, storeId)
+            return (await LoadAllPluginsAsync(customer, storeId))
                 .Where(plugin => systemNames.Contains(plugin.PluginDescriptor.SystemName, StringComparer.InvariantCultureIgnoreCase))
                 .ToList();
         }
@@ -168,10 +165,13 @@ namespace Nop.Services.Plugins
         /// Get plugin logo URL
         /// </summary>
         /// <param name="plugin">Plugin</param>
-        /// <returns>Logo URL</returns>
-        public virtual string GetPluginLogoUrl(TPlugin plugin)
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the logo URL
+        /// </returns>
+        public virtual async Task<string> GetPluginLogoUrlAsync(TPlugin plugin)
         {
-            return _pluginService.GetPluginLogoUrl(plugin.PluginDescriptor);
+            return await _pluginService.GetPluginLogoUrlAsync(plugin.PluginDescriptor);
         }
 
         #endregion

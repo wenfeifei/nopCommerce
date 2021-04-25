@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Nop.Core.Domain.Cms;
 using Nop.Core.Domain.Customers;
-using Nop.Services.Caching;
 using Nop.Services.Customers;
 using Nop.Services.Plugins;
 
@@ -22,10 +22,9 @@ namespace Nop.Services.Cms
 
         #region Ctor
 
-        public WidgetPluginManager(ICacheKeyService cacheKeyService,
-            ICustomerService customerService,
+        public WidgetPluginManager(ICustomerService customerService,
             IPluginService pluginService,
-            WidgetSettings widgetSettings) : base(cacheKeyService, customerService, pluginService)
+            WidgetSettings widgetSettings) : base(customerService, pluginService)
         {
             _widgetSettings = widgetSettings;
         }
@@ -40,15 +39,18 @@ namespace Nop.Services.Cms
         /// <param name="customer">Filter by customer; pass null to load all plugins</param>
         /// <param name="storeId">Filter by store; pass 0 to load all plugins</param>
         /// <param name="widgetZone">Widget zone; pass null to load all plugins</param>
-        /// <returns>List of active widget</returns>
-        public virtual IList<IWidgetPlugin> LoadActivePlugins(Customer customer = null, int storeId = 0, string widgetZone = null)
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the list of active widget
+        /// </returns>
+        public virtual async Task<IList<IWidgetPlugin>> LoadActivePluginsAsync(Customer customer = null, int storeId = 0, string widgetZone = null)
         {
-            var widgets = LoadActivePlugins(_widgetSettings.ActiveWidgetSystemNames, customer, storeId);
+            var widgets = await LoadActivePluginsAsync(_widgetSettings.ActiveWidgetSystemNames, customer, storeId);
 
             //filter by widget zone
             if (!string.IsNullOrEmpty(widgetZone))
-                widgets = widgets.Where(widget =>
-                    widget.GetWidgetZones().Contains(widgetZone, StringComparer.InvariantCultureIgnoreCase)).ToList();
+                widgets = await widgets.WhereAwait(async widget =>
+                    (await widget.GetWidgetZonesAsync()).Contains(widgetZone, StringComparer.InvariantCultureIgnoreCase)).ToListAsync();
 
             return widgets;
         }
@@ -69,10 +71,13 @@ namespace Nop.Services.Cms
         /// <param name="systemName">System name of widget to check</param>
         /// <param name="customer">Filter by customer; pass null to load all plugins</param>
         /// <param name="storeId">Filter by store; pass 0 to load all plugins</param>
-        /// <returns>Result</returns>
-        public virtual bool IsPluginActive(string systemName, Customer customer = null, int storeId = 0)
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the result
+        /// </returns>
+        public virtual async Task<bool> IsPluginActiveAsync(string systemName, Customer customer = null, int storeId = 0)
         {
-            var widget = LoadPluginBySystemName(systemName, customer, storeId);
+            var widget = await LoadPluginBySystemNameAsync(systemName, customer, storeId);
 
             return IsPluginActive(widget);
         }

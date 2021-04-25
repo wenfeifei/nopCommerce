@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Nop.Core;
 using Nop.Plugin.Shipping.UPS.Domain;
 using Nop.Plugin.Shipping.UPS.Services;
@@ -47,8 +48,11 @@ namespace Nop.Plugin.Shipping.UPS
         ///  Gets available shipping options
         /// </summary>
         /// <param name="getShippingOptionRequest">A request for getting shipping options</param>
-        /// <returns>Represents a response of getting shipping rate options</returns>
-        public GetShippingOptionResponse GetShippingOptions(GetShippingOptionRequest getShippingOptionRequest)
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the represents a response of getting shipping rate options
+        /// </returns>
+        public async Task<GetShippingOptionResponse> GetShippingOptionsAsync(GetShippingOptionRequest getShippingOptionRequest)
         {
             if (getShippingOptionRequest == null)
                 throw new ArgumentNullException(nameof(getShippingOptionRequest));
@@ -59,17 +63,20 @@ namespace Nop.Plugin.Shipping.UPS
             if (getShippingOptionRequest.ShippingAddress?.CountryId == null)
                 return new GetShippingOptionResponse { Errors = new[] { "Shipping address is not set" } };
 
-            return _upsService.GetRates(getShippingOptionRequest);
+            return await _upsService.GetRatesAsync(getShippingOptionRequest);
         }
 
         /// <summary>
         /// Gets fixed shipping rate (if shipping rate computation method allows it and the rate can be calculated before checkout).
         /// </summary>
         /// <param name="getShippingOptionRequest">A request for getting shipping options</param>
-        /// <returns>Fixed shipping rate; or null in case there's no fixed shipping rate</returns>
-        public decimal? GetFixedRate(GetShippingOptionRequest getShippingOptionRequest)
+        /// <returns>
+        /// A task that represents the asynchronous operation
+        /// The task result contains the fixed shipping rate; or null in case there's no fixed shipping rate
+        /// </returns>
+        public Task<decimal?> GetFixedRateAsync(GetShippingOptionRequest getShippingOptionRequest)
         {
-            return null;
+            return Task.FromResult<decimal?>(null);
         }
 
         /// <summary>
@@ -83,10 +90,11 @@ namespace Nop.Plugin.Shipping.UPS
         /// <summary>
         /// Install plugin
         /// </summary>
-        public override void Install()
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public override async Task InstallAsync()
         {
             //settings
-            _settingService.SaveSetting(new UPSSettings
+            await _settingService.SaveSettingAsync(new UPSSettings
             {
                 UseSandbox = true,
                 CustomerClassification = CustomerClassification.StandardListRates,
@@ -94,11 +102,13 @@ namespace Nop.Plugin.Shipping.UPS
                 PackagingType = PackagingType.ExpressBox,
                 PackingPackageVolume = 5184,
                 PackingType = PackingType.PackByDimensions,
-                PassDimensions = true
+                PassDimensions = true,
+                WeightType = "LBS",
+                DimensionsType = "IN"
             });
 
             //locales
-            _localizationService.AddPluginLocaleResource(new Dictionary<string, string>
+            await _localizationService.AddLocaleResourceAsync(new Dictionary<string, string>
             {
                 ["Enums.Nop.Plugin.Shipping.UPS.PackingType.PackByDimensions"] = "Pack by dimensions",
                 ["Enums.Nop.Plugin.Shipping.UPS.PackingType.PackByOneItemPerPackage"] = "Pack by one item per package",
@@ -113,6 +123,8 @@ namespace Nop.Plugin.Shipping.UPS
                 ["Plugins.Shipping.UPS.Fields.AvailableCarrierServices.Hint"] = "Select the services you want to offer to customers.",
                 ["Plugins.Shipping.UPS.Fields.CustomerClassification"] = "UPS Customer Classification",
                 ["Plugins.Shipping.UPS.Fields.CustomerClassification.Hint"] = "Choose customer classification.",
+                ["Plugins.Shipping.UPS.Fields.DimensionsType"] = "Dimensions type",
+                ["Plugins.Shipping.UPS.Fields.DimensionsType.Hint"] = "Choose dimensions type (inches or centimeters).",
                 ["Plugins.Shipping.UPS.Fields.InsurePackage"] = "Insure package",
                 ["Plugins.Shipping.UPS.Fields.InsurePackage.Hint"] = "Check to insure packages.",
                 ["Plugins.Shipping.UPS.Fields.PackagingType"] = "UPS Packaging Type",
@@ -135,6 +147,8 @@ namespace Nop.Plugin.Shipping.UPS
                 ["Plugins.Shipping.UPS.Fields.Username.Hint"] = "Specify UPS username.",
                 ["Plugins.Shipping.UPS.Fields.UseSandbox"] = "Use sandbox",
                 ["Plugins.Shipping.UPS.Fields.UseSandbox.Hint"] = "Check to use sandbox (testing environment).",
+                ["Plugins.Shipping.UPS.Fields.WeightType"] = "Weight type",
+                ["Plugins.Shipping.UPS.Fields.WeightType.Hint"] = "Choose the weight type (pounds or kilograms).",
                 ["Plugins.Shipping.UPS.Tracker.Arrived"] = "Arrived",
                 ["Plugins.Shipping.UPS.Tracker.Booked"] = "Booked",
                 ["Plugins.Shipping.UPS.Tracker.Delivered"] = "Delivered",
@@ -145,32 +159,28 @@ namespace Nop.Plugin.Shipping.UPS
                 ["Plugins.Shipping.UPS.Tracker.Pickup"] = "Pickup"
             });
 
-            base.Install();
+            await base.InstallAsync();
         }
 
         /// <summary>
         /// Uninstall plugin
         /// </summary>
-        public override void Uninstall()
+        /// <returns>A task that represents the asynchronous operation</returns>
+        public override async Task UninstallAsync()
         {
             //settings
-            _settingService.DeleteSetting<UPSSettings>();
+            await _settingService.DeleteSettingAsync<UPSSettings>();
 
             //locales
-            _localizationService.DeletePluginLocaleResources("Enums.Nop.Plugin.Shipping.UPS");
-            _localizationService.DeletePluginLocaleResources("Plugins.Shipping.UPS");
+            await _localizationService.DeleteLocaleResourcesAsync("Enums.Nop.Plugin.Shipping.UPS");
+            await _localizationService.DeleteLocaleResourcesAsync("Plugins.Shipping.UPS");
 
-            base.Uninstall();
+            await base.UninstallAsync();
         }
 
         #endregion
 
         #region Properties
-
-        /// <summary>
-        /// Gets a shipping rate computation method type
-        /// </summary>
-        public ShippingRateComputationMethodType ShippingRateComputationMethodType => ShippingRateComputationMethodType.Realtime;
 
         /// <summary>
         /// Gets a shipment tracker
